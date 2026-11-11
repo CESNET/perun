@@ -1624,6 +1624,7 @@ components:
         enableLinkedEmail: { type: boolean }
         enableCustomEmail: { type: boolean }
         customEmailRequiresVerification: { type: boolean }
+        verifiedEmailsAttribute: { type: string, description: "friendly name of user attribute with emails not requiring verification; empty if the functionality is off" }
       required:
         - enableLinkedName
         - enableCustomName
@@ -10711,6 +10712,21 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/usersManager/changeEmailFromAttribute:
+    post:
+      tags:
+        - UsersManager
+      operationId: changeEmailFromAttribute
+      summary: Change user's email to one of the verified emails stored in the configured user attribute. No verification is required.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - { name: newEmail, schema: { type: string }, in: query, required: true, description: "new email which will be set" }
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/usersManager/changeEmailCustom:
     post:
       tags:
@@ -11106,6 +11122,22 @@ paths:
       summary: Checks if the caller can apply for membership in VO, throws error containing the reason if cannot be member.
       parameters:
         - $ref: '#/components/parameters/voId'
+      responses:
+        '200':
+          $ref: '#/components/responses/BooleanResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/membersManager/canBeMemberWithReasonUserId:
+    get:
+      tags:
+        - MembersManager
+      operationId: canBeMemberWithReasonUserId
+      summary: Checks if the user can apply for membership in VO, throws error containing the reason if cannot be member.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - $ref: '#/components/parameters/userId'
+        - { name: 'loa', in: query, required: false, schema: {type: string}, description: "User's LOA"}
       responses:
         '200':
           $ref: '#/components/responses/BooleanResponse'
@@ -14519,6 +14551,20 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/BooleanResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/groupsManager/checkGroupCanBeAddedToAutoRegistration:
+    get:
+      tags:
+        - GroupsManager
+      operationId: checkGroupCanBeAddedToAutoRegistration
+      summary: Checks whether the group can be used for auto registration.
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 

@@ -64,6 +64,7 @@ public class ConfigManagerBlImpl implements ConfigManagerBl {
     config.setEnableLinkedEmail(configManagerImpl.getEnableLinkedEmail());
     config.setEnableCustomEmail(configManagerImpl.getEnableCustomEmail());
     config.setCustomEmailRequiresVerification(configManagerImpl.getCustomEmailRequiresVerification());
+    config.setVerifiedEmailsAttribute(configManagerImpl.getVerifiedEmailsAttribute());
 
     return config;
   }

@@ -2,5 +2,18 @@
 	"$schema": "https://docs.renovatebot.com/renovate-schema.json",
 	"extends": [
 		"local>perun/renovate-config:lib-maintained"
-	]
+	],
+    "baseBranchPatterns": ["main"],
+    "packageRules": [
+      {
+        "matchPackageNames": ["org.perun:registrar-api-client"],
+        "allowedVersions": "!/-SNAPSHOT$/",
+        "registryUrls": [
+          "https://gitlab.ics.muni.cz/api/v4/projects/8422/packages/maven"
+        ],
+        "semanticCommitType": "chore",
+        "semanticCommitScope": "deps",
+        "dependencyDashboardApproval": false
+      }
+    ]
 }

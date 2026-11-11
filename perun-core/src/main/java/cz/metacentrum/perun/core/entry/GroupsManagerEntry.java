@@ -35,6 +35,7 @@ import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupGroupMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.GroupMoveNotAllowedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
+import cz.metacentrum.perun.core.api.exceptions.GroupNotAllowedToAutoRegistrationException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupRelationAlreadyExists;
 import cz.metacentrum.perun.core.api.exceptions.GroupRelationCannotBeRemoved;
@@ -298,6 +299,20 @@ public class GroupsManagerEntry implements GroupsManager {
     }
 
     return getGroupsManagerBl().canExtendMembershipInGroupWithReason(sess, member, group);
+  }
+
+  @Override
+  public void checkGroupCanBeAddedToAutoRegistration(PerunSession sess, Group group)
+      throws GroupNotAllowedToAutoRegistrationException, PrivilegeException, GroupNotExistsException {
+    Utils.checkPerunSession(sess);
+    getGroupsManagerBl().checkGroupExists(sess, group);
+
+    if (!AuthzResolver.authorizedInternal(sess, "checkGroupCanBeAddedToAutoRegistration_Group_policy",
+        group)) {
+      throw new PrivilegeException("checkGroupCanBeAddedToAutoRegistration");
+    }
+
+    getGroupsManagerBl().checkGroupCanBeAddedToAutoRegistration(sess, group);
   }
 
   @Override

@@ -9561,6 +9561,18 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
     attributes.put(attr, createInitialPolicyCollections(policies));
 
+    //urn:perun:entityless:attribute-def:def:defaultUseNewRegistration
+    attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_ENTITYLESS_ATTR_DEF);
+    attr.setType(Boolean.class.getName());
+    attr.setFriendlyName("defaultUseNewRegistration");
+    attr.setDisplayName("Use new registration by default");
+    attr.setDescription("Enable the new Registrar for newly created objects. Use key 'groups' for groups and " +
+                            "subgroups (except the members group), and key 'vos' for VOs. " +
+                            "False or an unset value keeps the old Registrar. Existing objects are not affected.");
+    policies = new ArrayList<>();
+    attributes.put(attr, createInitialPolicyCollections(policies));
+
     //urn:perun:vo:attribute-def:def:useNewRegistration
     attr = new AttributeDefinition();
     attr.setNamespace(AttributesManager.NS_VO_ATTR_DEF);

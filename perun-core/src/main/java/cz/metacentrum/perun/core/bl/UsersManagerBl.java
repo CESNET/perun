@@ -2007,6 +2007,19 @@ public interface UsersManagerBl {
       throws PersonalDataChangeNotEnabledException, UserExtSourceNotExistsException;
 
   /**
+   * Change user's email to one of the emails stored in the user attribute configured by
+   * the verifiedEmailsAttribute config property. No verification is required.
+   *
+   * @param sess     session
+   * @param user     user
+   * @param newEmail new email
+   * @throws PersonalDataChangeNotEnabledException If the functionality is not enabled, or newEmail is not
+   *                                               among the user's verified emails.
+   */
+  void changeEmailFromAttribute(PerunSession sess, User user, String newEmail)
+      throws PersonalDataChangeNotEnabledException;
+
+  /**
    * Change user's email to custom email. If verification is required, then verification email will be sent.
    * Otherwise, it will be set immediately.
    *

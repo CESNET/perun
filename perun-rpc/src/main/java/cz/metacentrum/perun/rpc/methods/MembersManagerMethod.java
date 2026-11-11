@@ -1973,7 +1973,6 @@ public enum MembersManagerMethod implements ManagerMethod {
    *
    * @param vo int VO <code>id</code>
    * @param user User User to check
-   * @param loa String Level of Assurance (LoA) of user
    * @throw ExtendMembershipException When user can't become member of VO, reason is specified in exception text.
    * @exampleResponse 1
    * @return int 1 if true or throws exception if false
@@ -1984,6 +1983,34 @@ public enum MembersManagerMethod implements ManagerMethod {
       if (ac.getMembersManager()
           .canBeMemberWithReason(ac.getSession(), ac.getVoById(parms.readInt("vo")), parms.read("user", User.class),
               parms.readString("loa"))) {
+        return 1;
+      } else {
+        return 0;
+      }
+    }
+  },
+  /*#
+   * Checks if the user can apply for membership in VO.
+   * Decision is based on VO rules for: extendMembershipRules and doNotAllowLoa.
+   *
+   * @param vo int VO <code>id</code>
+   * @param user int User <code>id</code> to check
+   * @param loa String Level of Assurance (LoA) of user
+   * @throw ExtendMembershipException When user can't become member of VO, reason is specified in exception text.
+   * @exampleResponse 1
+   * @return int 1 if true or throws exception if false
+   */
+  canBeMemberWithReasonUserId {
+    @Override
+    public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
+      String loa = null;
+      if (parms.contains("loa")) {
+        loa = parms.readString("loa");
+      }
+      if (ac.getMembersManager()
+          .canBeMemberWithReason(ac.getSession(), ac.getVoById(parms.readInt("vo")),
+              ac.getUserById(parms.readInt("user")),
+              loa)) {
         return 1;
       } else {
         return 0;

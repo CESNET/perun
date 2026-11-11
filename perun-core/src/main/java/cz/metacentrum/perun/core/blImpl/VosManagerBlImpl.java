@@ -407,6 +407,20 @@ public class VosManagerBlImpl implements VosManagerBl {
     // create empty application form
     getVosManagerImpl().createApplicationForm(sess, vo);
 
+    try {
+      Attribute defaultUseNewRegistration = getPerunBl().getAttributesManagerBl().getAttribute(sess, "vos",
+          AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":defaultUseNewRegistration");
+      if (Boolean.TRUE.equals(defaultUseNewRegistration.valueAsBoolean())) {
+        Attribute useNewRegistration = getPerunBl().getAttributesManagerBl().getAttribute(sess, vo,
+            AttributesManager.NS_VO_ATTR_DEF + ":useNewRegistration");
+        useNewRegistration.setValue(true);
+        getPerunBl().getAttributesManagerBl().setAttribute(sess, vo, useNewRegistration);
+      }
+    } catch (AttributeNotExistsException | WrongAttributeAssignmentException | WrongAttributeValueException |
+             WrongReferenceAttributeValueException e) {
+      LOG.error("Cannot set the default Registrar for the newly created VO {}.", vo, e);
+    }
+
     LOG.info("Vo {} created", vo);
 
     return vo;

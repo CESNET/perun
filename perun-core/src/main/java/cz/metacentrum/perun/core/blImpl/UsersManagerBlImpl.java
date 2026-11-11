@@ -2934,23 +2934,26 @@ public class UsersManagerBlImpl implements UsersManagerBl {
     List<UserExtSource> uesList = getUserExtSources(sess, user);
 
     for (UserExtSource ues : uesList) {
-      try {
-        Attribute uesOrganizationAttr =
-            getPerunBl().getAttributesManagerBl().getAttribute(sess, ues, AttributesManager.NS_UES_ATTR_DEF + ":o");
+      if (ues.getLoa() > 0) {
+        try {
+          Attribute uesOrganizationAttr =
+                  getPerunBl().getAttributesManagerBl().getAttribute(sess, ues,
+                          AttributesManager.NS_UES_ATTR_DEF + ":o");
 
-        if (ues.getLoa() > 0 && newOrganizationName.equals(uesOrganizationAttr.getValue())) {
-          AttributeDefinition userOrganizationAttrDef = getPerunBl().getAttributesManagerBl()
-                                                            .getAttributeDefinition(sess,
-                                                                AttributesManager.NS_USER_ATTR_DEF +
-                                                                    ":organization");
-          Attribute userOrganizationAttr = new Attribute(userOrganizationAttrDef, newOrganizationName);
-          getPerunBl().getAttributesManagerBl().setAttribute(sess, user, userOrganizationAttr);
-          return;
+          if (Objects.equals(newOrganizationName, uesOrganizationAttr.getValue())) {
+            AttributeDefinition userOrganizationAttrDef = getPerunBl().getAttributesManagerBl()
+                    .getAttributeDefinition(sess,
+                            AttributesManager.NS_USER_ATTR_DEF +
+                                    ":organization");
+            Attribute userOrganizationAttr = new Attribute(userOrganizationAttrDef, newOrganizationName);
+            getPerunBl().getAttributesManagerBl().setAttribute(sess, user, userOrganizationAttr);
+            return;
+          }
+        } catch (WrongAttributeAssignmentException | WrongReferenceAttributeValueException |
+                 WrongAttributeValueException | AttributeNotExistsException ex) {
+          throw new InternalErrorException("Error processing organization attribute for userId: " +
+                  user.getId() + ", uesId: " + ues.getId() + ".", ex);
         }
-      } catch (WrongAttributeAssignmentException | WrongReferenceAttributeValueException |
-               WrongAttributeValueException | AttributeNotExistsException ex) {
-        throw new InternalErrorException("Error processing organization attribute for userId: " +
-                                         user.getId() + ", uesId: " + ues.getId() + ".", ex);
       }
     }
     throw new UserExtSourceNotExistsException(
@@ -2994,19 +2997,22 @@ public class UsersManagerBlImpl implements UsersManagerBl {
     List<UserExtSource> uesList = getUserExtSources(sess, user);
 
     for (UserExtSource ues : uesList) {
-      try {
-        Attribute uesNameAttr =
-            getPerunBl().getAttributesManagerBl().getAttribute(sess, ues, AttributesManager.NS_UES_ATTR_DEF + ":cn");
+      if (ues.getLoa() > 0) {
+        try {
+          Attribute uesNameAttr =
+                  getPerunBl().getAttributesManagerBl().getAttribute(sess, ues,
+                          AttributesManager.NS_UES_ATTR_DEF + ":cn");
 
-        if (ues.getLoa() > 0 && newUserName.equals(uesNameAttr.getValue())) {
-          User updatedUser = Utils.parseUserFromCommonName(newUserName, true);
-          updatedUser.setId(user.getId());
-          updateUser(sess, updatedUser);
-          return;
+          if (Objects.equals(newUserName, uesNameAttr.getValue())) {
+            User updatedUser = Utils.parseUserFromCommonName(newUserName, true);
+            updatedUser.setId(user.getId());
+            updateUser(sess, updatedUser);
+            return;
+          }
+        } catch (WrongAttributeAssignmentException | AttributeNotExistsException ex) {
+          throw new InternalErrorException("Error processing name attribute for userId: " + user.getId() +
+                  ", uesId: " + ues.getId() + ".", ex);
         }
-      } catch (WrongAttributeAssignmentException | AttributeNotExistsException ex) {
-        throw new InternalErrorException("Error processing name attribute for userId: " + user.getId() +
-                                         ", uesId: " + ues.getId() + ".", ex);
       }
     }
 
@@ -3048,28 +3054,65 @@ public class UsersManagerBlImpl implements UsersManagerBl {
     List<UserExtSource> uesList = getUserExtSources(sess, user);
 
     for (UserExtSource ues : uesList) {
-      try {
-        Attribute uesMailAttr = getPerunBl().getAttributesManagerBl()
-                                    .getAttribute(sess, ues, AttributesManager.NS_UES_ATTR_DEF + ":mail");
+      if (ues.getLoa() > 0) {
+        try {
+          Attribute uesMailAttr = getPerunBl().getAttributesManagerBl()
+                  .getAttribute(sess, ues, AttributesManager.NS_UES_ATTR_DEF + ":mail");
 
-        if (ues.getLoa() > 0 && newEmail.equals(uesMailAttr.getValue())) {
-          AttributeDefinition userOrganizationAttrDef = getPerunBl().getAttributesManagerBl()
-                                                            .getAttributeDefinition(sess,
-                                                                AttributesManager.NS_USER_ATTR_DEF +
-                                                                    ":preferredMail");
-          Attribute userOrganizationAttr = new Attribute(userOrganizationAttrDef, newEmail);
-          getPerunBl().getAttributesManagerBl().setAttribute(sess, user, userOrganizationAttr);
-          return;
+          if (Objects.equals(newEmail, uesMailAttr.getValue())) {
+            AttributeDefinition userPreferredMailAttrDef = getPerunBl().getAttributesManagerBl()
+                    .getAttributeDefinition(sess,
+                            AttributesManager.NS_USER_ATTR_DEF +
+                                    ":preferredMail");
+            Attribute userPreferredMailAttr = new Attribute(userPreferredMailAttrDef, newEmail);
+            getPerunBl().getAttributesManagerBl().setAttribute(sess, user, userPreferredMailAttr);
+            return;
+          }
+        } catch (WrongAttributeAssignmentException | AttributeNotExistsException | WrongAttributeValueException |
+                 WrongReferenceAttributeValueException ex) {
+          throw new InternalErrorException("Error processing email attribute for userId: " + user.getId() +
+                  ", uesId: " + ues.getId() + ".", ex);
         }
-      } catch (WrongAttributeAssignmentException | AttributeNotExistsException | WrongAttributeValueException |
-               WrongReferenceAttributeValueException ex) {
-        throw new InternalErrorException("Error processing email attribute for userId: " + user.getId() +
-                                         ", uesId: " + ues.getId() + ".", ex);
       }
     }
 
     throw new UserExtSourceNotExistsException(
         "No trusted user ext source with email '" + newEmail + "' exists for user: " + user);
+  }
+
+  @Override
+  public void changeEmailFromAttribute(PerunSession sess, User user, String newEmail)
+      throws PersonalDataChangeNotEnabledException {
+    String verifiedEmailsAttrName = BeansUtils.getCoreConfig().getVerifiedEmailsAttribute();
+    if (verifiedEmailsAttrName == null || verifiedEmailsAttrName.isBlank()) {
+      throw new PersonalDataChangeNotEnabledException(
+          "Change of user's email to a verified email from attribute is not enabled.");
+    }
+    Attribute verifiedEmailsAttr;
+    try {
+      verifiedEmailsAttr = getPerunBl().getAttributesManagerBl()
+                                         .getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" +
+                                                                   verifiedEmailsAttrName.trim());
+      List<String> verifiedEmails = verifiedEmailsAttr.valueAsList();
+      if (verifiedEmails == null || !verifiedEmails.contains(newEmail)) {
+        throw new PersonalDataChangeNotEnabledException("Email '" + newEmail + "' is not among verified emails ('" +
+                                                        verifiedEmailsAttrName + "' attribute) of user: " + user);
+      }
+    } catch (WrongAttributeAssignmentException | AttributeNotExistsException ex) {
+      throw new InternalErrorException("Error getting '" + verifiedEmailsAttrName.trim() + "' attribute for userId: " +
+                                       user.getId() + ".", ex);
+    }
+
+    try {
+      AttributeDefinition preferredMailAttrDef = getPerunBl().getAttributesManagerBl()
+                                                     .getAttributeDefinition(sess,
+                                                         AttributesManager.NS_USER_ATTR_DEF + ":preferredMail");
+      getPerunBl().getAttributesManagerBl().setAttribute(sess, user, new Attribute(preferredMailAttrDef, newEmail));
+    } catch (WrongAttributeAssignmentException | AttributeNotExistsException | WrongAttributeValueException |
+             WrongReferenceAttributeValueException ex) {
+      throw new InternalErrorException("Error setting email attribute for userId: " + user.getId() +
+                                       ", newEmail: " + newEmail + ".", ex);
+    }
   }
 
   @Override
@@ -3084,12 +3127,12 @@ public class UsersManagerBlImpl implements UsersManagerBl {
       requestPreferredEmailChange(sess, url, user, newEmail, lang, path, idp);
     } else {
       try {
-        AttributeDefinition userOrganizationAttrDef = getPerunBl().getAttributesManagerBl()
+        AttributeDefinition userPreferredMailAttrDef = getPerunBl().getAttributesManagerBl()
                                                           .getAttributeDefinition(sess,
                                                               AttributesManager.NS_USER_ATTR_DEF +
                                                                   ":preferredMail");
-        Attribute userOrganizationAttr = new Attribute(userOrganizationAttrDef, newEmail);
-        getPerunBl().getAttributesManagerBl().setAttribute(sess, user, userOrganizationAttr);
+        Attribute userPreferredMailAttr = new Attribute(userPreferredMailAttrDef, newEmail);
+        getPerunBl().getAttributesManagerBl().setAttribute(sess, user, userPreferredMailAttr);
       } catch (WrongAttributeAssignmentException | AttributeNotExistsException | WrongAttributeValueException |
                WrongReferenceAttributeValueException ex) {
         throw new InternalErrorException("Error setting email attribute for userId: " + user.getId() +

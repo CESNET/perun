@@ -115,6 +115,7 @@ public class CoreConfig {
   private boolean enableLinkedEmail;
   private boolean enableCustomEmail;
   private boolean customEmailRequiresVerification;
+  private String verifiedEmailsAttribute;
 
   private void createAttributeDefinitions(String extSourceType, List<String> attrNames) {
     List<AttributeDefinition> attrs = new ArrayList<>();
@@ -1068,5 +1069,13 @@ public class CoreConfig {
 
   public void setCustomEmailRequiresVerification(boolean customEmailRequiresVerification) {
     this.customEmailRequiresVerification = customEmailRequiresVerification;
+  }
+
+  public String getVerifiedEmailsAttribute() {
+    return verifiedEmailsAttribute;
+  }
+
+  public void setVerifiedEmailsAttribute(String verifiedEmailsAttribute) {
+    this.verifiedEmailsAttribute = verifiedEmailsAttribute;
   }
 }

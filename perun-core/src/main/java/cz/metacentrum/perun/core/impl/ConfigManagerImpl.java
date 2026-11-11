@@ -87,4 +87,9 @@ public class ConfigManagerImpl implements ConfigManagerImplApi {
   public boolean getCustomEmailRequiresVerification() {
     return BeansUtils.getCoreConfig().getCustomEmailRequiresVerification();
   }
+
+  @Override
+  public String getVerifiedEmailsAttribute() {
+    return BeansUtils.getCoreConfig().getVerifiedEmailsAttribute();
+  }
 }

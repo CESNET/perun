@@ -2792,6 +2792,15 @@ perun_policies:
     include_policies:
       - default_policy
 
+  checkGroupCanBeAddedToAutoRegistration_Group_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - GROUPADMIN: Group
+      - GROUPOBSERVER: Group
+    include_policies:
+      - default_policy
+
   getGroupsForAutoRegistration_Vo_policy:
     policy_roles:
       - VOADMIN: Vo
@@ -7023,6 +7032,14 @@ perun_policies:
       - MFA: User
 
   changeEmail_User_String_policy:
+    policy_roles:
+      - SELF: User
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: User
+
+  changeEmailFromAttribute_User_String_policy:
     policy_roles:
       - SELF: User
     include_policies:

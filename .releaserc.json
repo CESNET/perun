@@ -85,7 +85,7 @@
 		[
 			"@semantic-release/exec",
 			{
-				"prepareCmd": "./update-versions.sh ${nextRelease.version} && mvn -B -DskipTests clean install"
+				"prepareCmd": "./update-versions.sh ${nextRelease.version} && mvn -B -DskipTests clean install && mvn -s ci_settings.xml -pl perun-openapi -DskipTests deploy"
 			}
 		],
 		[
