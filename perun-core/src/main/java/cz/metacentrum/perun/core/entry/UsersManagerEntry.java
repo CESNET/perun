@@ -312,6 +312,12 @@ public class UsersManagerEntry implements UsersManager {
   }
 
   @Override
+  public void checkLoginFormat(PerunSession sess, String namespace, String login) throws InvalidLoginException {
+    Utils.checkPerunSession(sess);
+    usersManagerBl.checkLoginFormat(sess, namespace, login);
+  }
+
+  @Override
   public void checkPasswordResetRequestIsValid(PerunSession sess, UUID token)
       throws PasswordResetLinkExpiredException, PasswordResetLinkNotValidException {
     Utils.checkPerunSession(sess);

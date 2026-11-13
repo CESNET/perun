@@ -1892,6 +1892,20 @@ public enum UsersManagerMethod implements ManagerMethod {
   },
 
   /*#
+   * Check if login format is allowed for the provided namespace. If not, InvalidLoginException is thrown.
+   * @param loginNamespace String Namespace, that will be used to check the login format
+   * @param login String login of which to verify format
+   */
+  checkLoginFormat {
+    @Override
+    public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+      ac.getUsersManager()
+          .checkLoginFormat(ac.getSession(), parms.readString("loginNamespace"), parms.readString("login"));
+      return null;
+    }
+  },
+
+  /*#
    * Check password strength for the given namespace. If the password is too weak,
    * the PasswordStrengthException is thrown
    *
