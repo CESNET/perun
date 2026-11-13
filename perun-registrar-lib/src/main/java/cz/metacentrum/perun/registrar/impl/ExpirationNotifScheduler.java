@@ -98,8 +98,8 @@ public class ExpirationNotifScheduler {
                                                                   ":lifecycleTimestamps";
   private static final String A_MEMBER_GROUP_LIFECYCLE_TIMESTAMPS = AttributesManager.NS_MEMBER_GROUP_ATTR_DEF +
                                                                         ":lifecycleTimestamps";
-  private static final String USER_ACCESS_TIMESTAMP_ATTRIBUTE = AttributesManager.NS_USER_ATTR_DEF +
-                                                                    ":isCesnetEligibleLastSeen";
+  private static final String USER_ACCESS_TIMESTAMP_ATTRIBUTE = AttributesManager.NS_USER_ATTR_VIRT +
+                                                                    ":lastActivityTimestamp";
   private static final String A_MEMBER_LAST_EXTENSION_ATTRIBUTE = AttributesManager.NS_MEMBER_ATTR_DEF +
                                                                       ":lastExtension";
   private static final String A_MEMBER_G_LAST_EXTENSION_ATTRIBUTE = AttributesManager.NS_MEMBER_GROUP_ATTR_DEF +

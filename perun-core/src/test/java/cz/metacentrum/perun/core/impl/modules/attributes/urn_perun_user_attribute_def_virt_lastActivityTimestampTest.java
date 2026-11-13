@@ -1,0 +1,71 @@
+package cz.metacentrum.perun.core.impl.modules.attributes;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.AttributesManager;
+import cz.metacentrum.perun.core.api.ExtSource;
+import cz.metacentrum.perun.core.api.ExtSourcesManager;
+import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.UserExtSource;
+import cz.metacentrum.perun.core.bl.PerunBl;
+import cz.metacentrum.perun.core.bl.UsersManagerBl;
+import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+import cz.metacentrum.perun.core.impl.Utils;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import org.junit.Before;
+import org.junit.Test;
+
+public class urn_perun_user_attribute_def_virt_lastActivityTimestampTest {
+  private static urn_perun_user_attribute_def_virt_lastActivityTimestamp classInstance;
+  private static PerunSessionImpl session;
+  private static User user;
+  private static UserExtSource ues1;
+  private static UserExtSource ues2;
+  private static UserExtSource ues3;
+  private static UserExtSource ues4;
+  private static AttributeDefinition attrDef;
+
+  @Before
+  public void setUp() throws Exception {
+    classInstance = new urn_perun_user_attribute_def_virt_lastActivityTimestamp();
+    session = mock(PerunSessionImpl.class);
+    user = mock(User.class);
+
+    ues1 =
+        new UserExtSource(10, new ExtSource(100, "earliestAccessExtSource1", ExtSourcesManager.EXTSOURCE_IDP), "login");
+    ues2 = new UserExtSource(10, new ExtSource(100, "earliestAccessExtSource2", "nonIdP"), "login");
+    ues3 =
+        new UserExtSource(10, new ExtSource(100, "earliestAccessExtSource3", ExtSourcesManager.EXTSOURCE_IDP), "login");
+    ues4 =
+        new UserExtSource(10, new ExtSource(100, "earliestAccessExtSource4", ExtSourcesManager.EXTSOURCE_IDP), "login");
+
+    // try variable length of seconds fractions in last access timestamp
+    ues1.setLastAccess(
+        LocalDateTime.now().minusMonths(1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSS")));
+    ues2.setLastAccess(LocalDateTime.now().minusMonths(2).format(Utils.LAST_ACCESS_FORMATTER));
+    ues3.setLastAccess(LocalDateTime.now().minusMonths(3).format(Utils.LAST_ACCESS_FORMATTER));
+    ues4.setLastAccess(
+        LocalDateTime.now().minusMonths(4).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")));
+
+    attrDef = new AttributeDefinition();
+    attrDef.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
+    attrDef.setFriendlyName("lastActivityTimestamp");
+    attrDef.setDisplayName("");
+
+    when(session.getPerunBl()).thenReturn(mock(PerunBl.class));
+    when(session.getPerunBl().getUsersManagerBl()).thenReturn(mock(UsersManagerBl.class));
+    when(session.getPerunBl().getUsersManagerBl().getUserExtSources(session, user)).thenReturn(
+        List.of(ues1, ues2, ues3, ues4));
+  }
+
+  @Test
+  public void testCheckWithAttribute() {
+    System.out.println("testCheckWithAttribute()");
+    assertEquals(ues1.getLastAccess(), classInstance.getAttributeValue(session, user, attrDef).getValue());
+  }
+}
