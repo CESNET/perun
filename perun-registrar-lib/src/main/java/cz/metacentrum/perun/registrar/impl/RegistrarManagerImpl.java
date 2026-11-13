@@ -3850,14 +3850,25 @@ public class RegistrarManagerImpl implements RegistrarManager {
       result.put("vo", vo);
       result.put("voAttributes", list);
 
-      Attribute useNewAttr;
+      boolean useNewVo = false;
+      boolean useNewGroup = false;
       try {
-        useNewAttr = attrManager.getAttribute(sess, vo, AttributesManager.NS_VO_ATTR_DEF +
+        Attribute useNewAttr = attrManager.getAttribute(sess, vo, AttributesManager.NS_VO_ATTR_DEF +
                                                             ":useNewRegistration");
+        useNewVo = useNewAttr != null && useNewAttr.getValue() != null && useNewAttr.valueAsBoolean();
       } catch (AttributeNotExistsException | WrongAttributeAssignmentException e) {
-        useNewAttr = null;
+        // ignore
       }
-      if (useNewAttr != null && useNewAttr.getValue() != null && useNewAttr.valueAsBoolean()) {
+      if (groupName != null && !groupName.isEmpty()) {
+        try {
+          Attribute useNewAttr = attrManager.getAttribute(sess, vo, AttributesManager.NS_GROUP_ATTR_DEF +
+                                                                        ":useNewRegistration");
+          useNewGroup = useNewAttr != null && useNewAttr.getValue() != null && useNewAttr.valueAsBoolean();
+        } catch (AttributeNotExistsException | WrongAttributeAssignmentException e) {
+          // ignore
+        }
+      }
+      if (useNewVo) {
         boolean hasVoOpen = this.perun.getRegistrarAdapter().hasOpenAppInVo(sess, vo);
         Member member = null;
         if (hasVoOpen) {
@@ -3882,7 +3893,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
                                  perun.getRegistrarAdapter().doesVoHaveExtensionForm(vo);
 
         if (groupName == null || needsRegistration || needsExtension) {
-          result.put("newRegistrarUrl", this.perun.getRegistrarAdapter().getInviteUrlForVo(vo));
+          result.put("newRegistrarUrl", this.perun.getRegistrarAdapter().getInviteUrlForVo(vo,
+              useNewGroup ? null : mailManager.buildInviteURL(vo, groupsManager.getGroupByName(sess, vo, groupName))));
           // we can end here, new reg will redirect back to old reg after creating app
           return result;
         }
@@ -3964,13 +3976,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
         result.put("group", group);
         result.put("groupForm", getFormForGroup(group));
-        try {
-          useNewAttr = attrManager.getAttribute(sess, group, AttributesManager.NS_GROUP_ATTR_DEF +
-                                                                 ":useNewRegistration");
-        } catch (AttributeNotExistsException | WrongAttributeAssignmentException e) {
-          useNewAttr = null;
-        }
-        if (useNewAttr != null && useNewAttr.getValue() != null && useNewAttr.valueAsBoolean()) {
+        if (useNewGroup) {
           String regRedirect = this.perun.getRegistrarAdapter().getInviteUrlForGroup(group);
           result.put("groupNewRegistrarUrl", regRedirect);
           // we always want to redirect for groups
