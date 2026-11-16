@@ -32,8 +32,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.UUID;
-import java.util.stream.Collectors;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
@@ -1022,42 +1020,27 @@ public enum RegistrarManagerMethod implements ManagerMethod {
   },
 
   /*#
-   * Creates a new application.
+   * Submit application.
    * The method triggers approval for VOs with auto-approved applications.
    *
-   * @deprecated See submitApplication()
-   * @param app Application Application JSON object
-   * @param data List<ApplicationFormItemData> List of ApplicationFormItemData JSON objects
-   * @return List<ApplicationFormItemData> Stored app data
-   */
-  createApplication {
-    @Override
-    public List<ApplicationFormItemData> call(ApiCaller ac, Deserializer parms) throws PerunException {
-      parms.stateChangingCheck();
-
-      Application app = parms.read("app", Application.class);
-      List<ApplicationFormItemData> data = parms.readList("data", ApplicationFormItemData.class);
-
-      return ac.getRegistrarManager().createApplication(ac.getSession(), app, data);
-
-    }
-
-  },
-
-  /*#
-   * Creates a new application.
-   * The method triggers approval for VOs with auto-approved applications.
-   *
-   * @param app Application Application JSON object
-   * @param data List<ApplicationFormItemData> List of ApplicationFormItemData JSON objects
+   * @param voId int id of the vo
+   * @param groupId int id of the group (for group applications)
+   * @param appType String Application type: INITIAL or EXTENSION
+   * @param data Map<String, String> data for form items keyed by form item id
+   * @param redirectUrl String URL to redirect the user to after submission
+   * @param externalParams Map<String, List<String>> additional parameters to be stored with the application
    * @return Application Submitted application
    */
   /*#
-   * Creates a new application from pre-approved invitation.
+   * Submit application from pre-approved invitation.
    * The method triggers approval for VOs with auto-approved applications.
    *
-   * @param app Application Application JSON object
-   * @param data List<ApplicationFormItemData> List of ApplicationFormItemData JSON objects
+   * @param voId int id of the vo
+   * @param groupId int id of the group (for group applications)
+   * @param appType String Application type: INITIAL or EXTENSION
+   * @param data Map<String, String> data for form items keyed by form item id
+   * @param redirectUrl String URL to redirect the user to after submission
+   * @param externalParams Map<String, List<String>> additional parameters to be stored with the application
    * @param token uuid corresponding to pre-approved invitation
    * @return Application Submitted application
    */
@@ -1066,16 +1049,29 @@ public enum RegistrarManagerMethod implements ManagerMethod {
     public Application call(ApiCaller ac, Deserializer parms) throws PerunException {
       parms.stateChangingCheck();
 
-      Application app = parms.read("app", Application.class);
-      List<ApplicationFormItemData> data = parms.readList("data", ApplicationFormItemData.class);
+      int voId = parms.readInt("voId");
+      Group group = parms.contains("groupId") ? ac.getGroupById(parms.readInt("groupId")) : null;
+      AppType appType = AppType.valueOf(parms.readString("appType"));
+      Map<String, String> data = (Map<String, String>) parms.read("data", Map.class);
+      Map<Integer, String> itemData = new HashMap<>();
+      for (Map.Entry<String, String> item : data.entrySet()) {
+        itemData.put(Integer.valueOf(item.getKey()), item.getValue());
+      }
+      String redirectUrl = parms.contains("redirectUrl") ? parms.readString("redirectUrl") : null;
+      Map<String, List<String>> externalParams = null;
+      if (parms.contains("externalParams")) {
+        externalParams = (Map<String, List<String>>) parms.read("externalParams", Map.class);
+      }
       if (parms.contains("token")) {
-        if (app.getGroup() == null) {
+        if (group == null) {
           throw new IllegalArgumentException("The token parameter is only meant for group applications.");
         }
-        return ac.getRegistrarManager().submitApplication(ac.getSession(), app, data, parms.readUUID("token"));
+        return ac.getRegistrarManager().submitApplication(ac.getSession(), itemData, ac.getVoById(voId), group, appType,
+            redirectUrl, externalParams, parms.readUUID("token"));
       }
 
-      return ac.getRegistrarManager().submitApplication(ac.getSession(), app, data);
+      return ac.getRegistrarManager().submitApplication(ac.getSession(), itemData, ac.getVoById(voId), group, appType,
+          redirectUrl, externalParams);
     }
 
   },

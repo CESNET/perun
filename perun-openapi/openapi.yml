@@ -18492,7 +18492,7 @@ paths:
       tags:
         - RegistrarManager
       operationId: submitApplication
-      summary: Creates a new application and if succeeds, trigger validation and approval.
+      summary: Submit an application. If it succeeds, trigger validation and approval.
         The method triggers approval for VOs with auto-approved applications.
       responses:
         '200':
@@ -18508,12 +18508,23 @@ paths:
               description: "input to submitApplication"
               type: object
               required:
-                - app
+                - voId
+                - appType
                 - data
               properties:
-                app: { $ref: '#/components/schemas/Application' }
-                data: { type: array, items: { $ref: '#/components/schemas/ApplicationFormItemData' } }
-                invitationToken: { type: string, format: uuid, description: "uuid token of invitation if application is pre-approved", nullable: true }
+                voId: { type: integer, description: "id of the Vo" }
+                groupId: { type: integer, nullable: true, description: "id of the Group, for group applications" }
+                appType: { type: string, enum: [INITIAL, EXTENSION], description: "type of the application" }
+                data: { type: object, additionalProperties: { type: string }, description: "data for form items keyed by form item id" }
+                redirectUrl: { type: string, nullable: true, description: "URL to redirect the user to after submission" }
+                externalParams:
+                  type: object
+                  additionalProperties:
+                    type: array
+                    items:
+                      type: string
+                  description: "External parameters keyed by parameter name"
+                token: { type: string, format: uuid, nullable: true, description: "uuid token of invitation if application is pre-approved" }
 
   /json/registrarManager/getGroupsToAutoRegistration:
     get:
