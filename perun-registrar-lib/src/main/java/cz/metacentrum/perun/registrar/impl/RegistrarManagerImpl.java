@@ -9,6 +9,8 @@ import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.Type.EMBE
 import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.Type.HEADING;
 import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.Type.HTML_COMMENT;
 import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.Type.PASSWORD;
+import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.Type.RADIO;
+import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.Type.SELECTIONBOX;
 import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.Type.SUBMIT_BUTTON;
 import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.Type.USERNAME;
 import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.Type.VALIDATED_EMAIL;
@@ -118,14 +120,20 @@ import cz.metacentrum.perun.registrar.exceptions.ApplicationNotCreatedException;
 import cz.metacentrum.perun.registrar.exceptions.CantBeApprovedException;
 import cz.metacentrum.perun.registrar.exceptions.CantBeSubmittedException;
 import cz.metacentrum.perun.registrar.exceptions.DuplicateRegistrationAttemptException;
+import cz.metacentrum.perun.registrar.exceptions.ForeignItemsDetectedException;
 import cz.metacentrum.perun.registrar.exceptions.FormItemSetupException;
 import cz.metacentrum.perun.registrar.exceptions.FormNotExistsException;
+import cz.metacentrum.perun.registrar.exceptions.IllegalEmbeddedGroupException;
 import cz.metacentrum.perun.registrar.exceptions.InvitationNotExistsException;
+import cz.metacentrum.perun.registrar.exceptions.ItemVisibilityBrokenException;
 import cz.metacentrum.perun.registrar.exceptions.MissingRequiredDataCertException;
 import cz.metacentrum.perun.registrar.exceptions.MissingRequiredDataException;
 import cz.metacentrum.perun.registrar.exceptions.NewRegistrarUsedException;
 import cz.metacentrum.perun.registrar.exceptions.NoPrefilledUneditableRequiredDataException;
+import cz.metacentrum.perun.registrar.exceptions.RegexValidationFailedException;
 import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
+import cz.metacentrum.perun.registrar.exceptions.RequiredItemMissingException;
+import cz.metacentrum.perun.registrar.exceptions.SelectionValidationFailedException;
 import cz.metacentrum.perun.registrar.model.Application;
 import cz.metacentrum.perun.registrar.model.Application.AppState;
 import cz.metacentrum.perun.registrar.model.Application.AppType;
@@ -166,6 +174,7 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 import javax.sql.DataSource;
 import org.apache.commons.lang3.StringUtils;
@@ -1747,14 +1756,6 @@ public class RegistrarManagerImpl implements RegistrarManager {
   }
 
   @Override
-  @Deprecated
-  public List<ApplicationFormItemData> createApplication(PerunSession session, Application application,
-                                                         List<ApplicationFormItemData> data) throws PerunException {
-    int appId = processApplication(session, application, data);
-    return getApplicationDataById(session, appId);
-  }
-
-  @Override
   public void createApplicationFormInGroup(PerunSession sess, Group group)
       throws PrivilegeException, GroupNotExistsException {
     groupsManager.checkGroupExists(sess, group);
@@ -1797,11 +1798,245 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
   }
 
+  private void validateItemData(ApplicationForm form,
+                                ApplicationFormItemData itemData)
+      throws GroupNotExistsException, IllegalEmbeddedGroupException, SelectionValidationFailedException,
+                 RegexValidationFailedException, RequiredItemMissingException {
+    ApplicationFormItem formItem = itemData.getFormItem();
+    if (formItem.getType().equals(CHECKBOX)) {
+      validateCheckboxItemData(itemData);
+    }
+    if (formItem.getType().equals(RADIO) || formItem.getType().equals(SELECTIONBOX)) {
+      validateSelectionItemData(itemData);
+    }
+    if (formItem.getType().equals(EMBEDDED_GROUP_APPLICATION)) {
+      validateEmbeddedGroupItemData(form, itemData);
+    }
+    if (itemData.getValue() == null || itemData.getValue().isEmpty()) {
+      if (formItem.isRequired()) {
+        throw new RequiredItemMissingException("Required item " + itemData.getFormItem().getShortname() +
+                                                   " is missing");
+      }
+      return;
+    }
+    if (formItem.getRegex() != null && !formItem.getRegex().isEmpty()) {
+      try {
+        if (!Pattern.matches(formItem.getRegex(), itemData.getValue())) {
+          throw new RegexValidationFailedException("Item " + itemData.getFormItem().getShortname() +
+                                                       " value does not match regex.");
+        }
+      } catch (PatternSyntaxException ex) {
+        LOG.error("Form item {} has invalid regex defined", formItem.getId(), ex);
+        throw new RegexValidationFailedException(
+            "Cannot submit because regex of item is invalid, inform administrator");
+      }
+    }
+  }
+
+  private List<String> parseMultiValue(String value) {
+    if (value == null || value.isEmpty()) {
+      return new ArrayList<>();
+    }
+    List<String> result = new ArrayList<>();
+    for (String part : value.split("\\|")) {
+      if (!part.isEmpty()) {
+        result.add(part);
+      }
+    }
+    return result;
+  }
+
+  private List<String> getAllowedValues(ApplicationFormItem formItem) {
+    List<String> allowedValues = new ArrayList<>();
+    for (ItemTexts texts : formItem.getI18n().values()) {
+      for (String entry : texts.getOptions().split("\\|")) {
+        allowedValues.add(entry.split("#")[0]);
+      }
+    }
+    return allowedValues;
+  }
+
+  private void validateCheckboxItemData(ApplicationFormItemData itemData)
+      throws RequiredItemMissingException, SelectionValidationFailedException {
+    String rawValue = itemData.getValue();
+    if (rawValue == null || rawValue.isEmpty()) {
+      if (itemData.getFormItem().isRequired()) {
+        throw new RequiredItemMissingException("Required item missing");
+      }
+      return;
+    }
+    List<String> values = parseMultiValue(rawValue);
+    if (values.isEmpty() && itemData.getFormItem().isRequired()) {
+      throw new RequiredItemMissingException("Required item missing");
+    }
+    List<String> allowedValues = getAllowedValues(itemData.getFormItem());
+    for (String value : values) {
+      if (!allowedValues.contains(value)) {
+        throw new SelectionValidationFailedException("Checkbox item contains foreign values");
+      }
+    }
+  }
+
+  private void validateSelectionItemData(ApplicationFormItemData itemData)
+      throws RequiredItemMissingException, SelectionValidationFailedException {
+    if (itemData.getValue() == null || itemData.getValue().isEmpty()) {
+      if (itemData.getFormItem().isRequired()) {
+        throw new RequiredItemMissingException("Required item missing");
+      }
+      return;
+    }
+    List<String> allowedValues = getAllowedValues(itemData.getFormItem());
+    if (!allowedValues.contains(itemData.getValue())) {
+      throw new SelectionValidationFailedException("Item contains foreign values");
+    }
+  }
+
+  private void validateEmbeddedGroupItemData(ApplicationForm form, ApplicationFormItemData itemData)
+      throws GroupNotExistsException, IllegalEmbeddedGroupException, RequiredItemMissingException,
+             SelectionValidationFailedException {
+    String rawValue = itemData.getValue();
+    if (rawValue == null || rawValue.isEmpty()) {
+      if (itemData.getFormItem().isRequired()) {
+        throw new RequiredItemMissingException("Required item missing");
+      }
+      return;
+    }
+    List<String> values = parseMultiValue(rawValue);
+    if (values.isEmpty() && itemData.getFormItem().isRequired()) {
+      throw new RequiredItemMissingException("Required item missing");
+    }
+    List<Group> embeddedGroups = new ArrayList<>();
+    for (String value : values) {
+      String[] subelements = value.split("#");
+      int groupId;
+      try {
+        groupId = Integer.parseInt(subelements[subelements.length - 1]);
+      } catch (NumberFormatException ex) {
+        throw new InternalErrorException("Embedded group item contains invalid group id");
+      }
+      embeddedGroups.add(groupsManager.getGroupById(registrarSession, groupId));
+    }
+    List<Group> autoRegistrationGroups = new ArrayList<>();
+    if (form.getGroup() != null) {
+      autoRegistrationGroups =
+          perun.getGroupsManagerBl().getGroupsForAutoRegistration(registrarSession, form.getGroup(),
+              itemData.getFormItem());
+    } else {
+      autoRegistrationGroups =
+          perun.getGroupsManagerBl().getGroupsForAutoRegistration(registrarSession, form.getVo(),
+              itemData.getFormItem());
+    }
+    for (Group embeddedGroup : embeddedGroups) {
+      if (!autoRegistrationGroups.contains(embeddedGroup)) {
+        throw new IllegalEmbeddedGroupException(
+            "Embedded groups item contains groups that are not allowed");
+      }
+    }
+  }
+
+  /**
+   * Validates that the submitted value of an item the user could not have seen or edited (because it was
+   * hidden or disabled in the submission form) was not modified: the submitted value must match the value
+   * prefilled by the system.
+   *
+   * @param itemData      item data being validated
+   * @param expectedItems all items of the form with prefilled values, by item id (needed to resolve dependencies)
+   */
+  private void validateVisibility(ApplicationFormItemData itemData,
+                                  Map<Integer, ApplicationFormItemWithPrefilledValue> expectedItems)
+      throws ItemVisibilityBrokenException {
+    ApplicationFormItemWithPrefilledValue item = expectedItems.get(itemData.getFormItem().getId());
+    boolean hidden = isItemHidden(item, expectedItems);
+    boolean disabled = isItemDisabled(item, expectedItems);
+
+    if (!hidden && !disabled) {
+      return;
+    }
+    boolean error = itemData.getFormItem().getType().equals(VALIDATED_EMAIL) ?
+                        !checkEmailMatchesPrefilledValue(itemData) : !Objects.equals(
+                Objects.requireNonNullElse(itemData.getValue(), ""),
+                Objects.requireNonNullElse(item.getPrefilledValue(), "")
+        );
+    if (error) {
+      throw new ItemVisibilityBrokenException("Item " + itemData.getFormItem().getShortname() +
+                                                  " contains a modified value even though it" +
+                                                  " was supposed to be hidden/disabled");
+    }
+  }
+
+  private boolean checkEmailMatchesPrefilledValue(ApplicationFormItemData itemData) {
+    if (isBlank(itemData.getValue()) && isBlank(itemData.getPrefilledValue())) {
+      return true;
+    }
+    if (isBlank(itemData.getPrefilledValue())) {
+      return false;
+    }
+    List<String> prefilledValues = Arrays.stream(itemData.getPrefilledValue().split(";"))
+                                       .map(String::toLowerCase).toList();
+    String actualValue = itemData.getValue().toLowerCase();
+    return prefilledValues.contains(actualValue);
+  }
+
+  private List<ApplicationFormItemData> checkSubmissibility(PerunSession session, Map<Integer, String> data,
+                                      ApplicationForm form, AppType type,
+                                      Map<String, List<String>> externalParams) throws PerunException {
+    if (type == AppType.EMBEDDED) {
+      // TODO is this fine?
+      return new ArrayList<>();
+    }
+    List<ApplicationFormItemWithPrefilledValue> formItems =
+        getFormItemsWithPrefilledValues(session, type, form, externalParams);
+    Map<Integer, ApplicationFormItemWithPrefilledValue> expectedItems = formItems.stream()
+                                                          .collect(Collectors.toMap(
+                                                              pref -> pref.getFormItem().getId(),
+                                                              pref -> pref
+                                                          ));
+    List<Integer> foreignItemIds = new ArrayList<>();
+    for (Map.Entry<Integer, String> entry : data.entrySet()) {
+      if (!expectedItems.containsKey(entry.getKey())) {
+        foreignItemIds.add(entry.getKey());
+      }
+    }
+    if (!foreignItemIds.isEmpty()) {
+      throw new ForeignItemsDetectedException("Submission contains items not belonging to the form: " + foreignItemIds);
+    }
+
+    List<ApplicationFormItemData> resultingData = new ArrayList<>();
+
+    for (ApplicationFormItemWithPrefilledValue item : expectedItems.values()) {
+      String userData = data.get(item.getFormItem().getId()); // todo could check here ALL expected data is present
+      ApplicationFormItemData itemData = new ApplicationFormItemData();
+      itemData.setValue(userData); // can be null if not passed, that's actually welcome
+      itemData.setFormItem(item.getFormItem());
+      itemData.setPrefilledValue(isBlank(item.getPrefilledValue()) ? null : item.getPrefilledValue());
+      if (item.getFormItem().getType().equals(VALIDATED_EMAIL)) {
+        itemData.setAssuranceLevel(item.getAssuranceLevel()); // method below sets to 0 if new
+        handleLoaForValidatedMail(session, itemData);
+      } else if (itemData.getValue() != null && itemData.getValue().equals(item.getPrefilledValue())) {
+        itemData.setAssuranceLevel(item.getAssuranceLevel());
+      } else {
+        itemData.setAssuranceLevel("0");
+      }
+      boolean hidden = isItemHidden(item, expectedItems);
+      boolean disabled = isItemDisabled(item, expectedItems);
+      itemData.setWasEditable(!(hidden || disabled));
+      validateVisibility(itemData, expectedItems);
+      validateItemData(form, itemData);
+
+      if (item.getFormItem().getType().equals(USERNAME) && item.isGenerated()) {
+        // if login prefilled value was generated via module, we want to make sure it's reserved and handled as new
+        itemData.setPrefilledValue(null);
+      }
+      resultingData.add(itemData);
+    }
+
+    return resultingData;
+  }
+
   @Override
   @Transactional(rollbackFor = ApplicationNotCreatedException.class)
   public Application createApplicationInternal(PerunSession session, Application application,
                                                List<ApplicationFormItemData> data) throws PerunException {
-
     // exceptions to send to vo admin with new app created email
     List<Exception> exceptions = new ArrayList<>();
     boolean applicationNotCreated = false;
@@ -1855,17 +2090,15 @@ public class RegistrarManagerImpl implements RegistrarManager {
           continue;
         }
 
-        // Check if mails needs to be validated
-        if (itemType == VALIDATED_EMAIL) {
-          handleLoaForValidatedMail(session, itemData);
-        }
-
         try {
           itemData.setId(Utils.getNewId(jdbc, "APPLICATION_DATA_ID_SEQ"));
           jdbc.update(
-              "insert into application_data(id,app_id,item_id,shortname,value,assurance_level) values (?,?,?,?,?,?)",
+              "insert into application_data(id,app_id,item_id,shortname,value,assurance_level,was_editable)" +
+                  " values (?,?,?,?,?,?,?)",
               itemData.getId(), appId, itemData.getFormItem().getId(), itemData.getFormItem().getShortname(),
-              itemData.getValue(), ((isBlank(itemData.getAssuranceLevel())) ? null : itemData.getAssuranceLevel()));
+              itemData.getValue(),
+              ((isBlank(itemData.getAssuranceLevel())) ? null : itemData.getAssuranceLevel()),
+              itemData.isWasEditable());
         } catch (Exception ex) {
           // log and store exception so vo manager could see error in notification.
           LOG.error("[REGISTRAR] Storing form item {} caused exception {}", itemData, ex);
@@ -1898,7 +2131,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
         if (loginItem.getFormItem().getType() == USERNAME) {
           // values to store
           String login = loginItem.getValue();
-          String pass; // filled later
+          String pass = null; // filled later
           // Get login namespace
           String dstAttr = loginItem.getFormItem().getPerunDestinationAttribute();
           AttributeDefinition loginAttribute = attrManager.getAttributeDefinition(session, dstAttr);
@@ -1920,40 +2153,44 @@ public class RegistrarManagerImpl implements RegistrarManager {
               // Reserve login
               String actor = session.getPerunPrincipal().getActor();
               String extSource = session.getPerunPrincipal().getExtSourceName();
-              jdbc.update(
-                  "insert into application_reserved_logins(login,namespace,user_id,extsourcename,created_by," +
-                   "created_at,identifier) values(?,?,?,?,?,?,?)",
-                  login, loginNamespace, userId, extSource, actor, new Date(), actor);
-              LOG.debug("[REGISTRAR] Added login reservation for login: {} in namespace: {}.", login, loginNamespace);
-
               // process password for this login
               for (ApplicationFormItemData passItem : logins) {
                 ApplicationFormItem item = passItem.getFormItem();
                 if (item.getType() == PASSWORD && item.getPerunDestinationAttribute() != null) {
                   if (item.getPerunDestinationAttribute().equals(dstAttr)) {
                     pass = passItem.getValue();
-                    try {
-                      // reserve password
-                      usersManager.reservePassword(registrarSession, login, loginNamespace, pass);
-                      LOG.debug(
-                          "[REGISTRAR] Password for login: {} in namespace: {} successfully reserved in external " +
-                           "system.",
-                          login, loginNamespace);
-                    } catch (Exception ex) {
-                      // login reservation fail must cause rollback !!
-                      LOG.error(
-                          "[REGISTRAR] Unable to reserve password for login: {} in namespace: {} in external system. " +
-                           "Exception: {}",
-                          login, loginNamespace, ex);
-                      throw new ApplicationNotCreatedException(
-                          "Application was not created. Reason: Unable to reserve password for login: " + login +
+                    break;
+                  }
+                }
+              }
+              if (pass != null) {
+                usersManager.checkPasswordStrength(registrarSession, pass, loginNamespace, login);
+              }
+              jdbc.update(
+                  "insert into application_reserved_logins(login,namespace,user_id,extsourcename,created_by," +
+                   "created_at,identifier) values(?,?,?,?,?,?,?)",
+                  login, loginNamespace, userId, extSource, actor, new Date(), actor);
+              LOG.debug("[REGISTRAR] Added login reservation for login: {} in namespace: {}.", login, loginNamespace);
+              if (pass != null) {
+                try {
+                  // reserve password
+                  usersManager.reservePassword(registrarSession, login, loginNamespace, pass);
+                  LOG.debug(
+                      "[REGISTRAR] Password for login: {} in namespace: {} successfully reserved in external " +
+                          "system.",
+                      login, loginNamespace);
+                } catch (Exception ex) {
+                  // login reservation fail must cause rollback !!
+                  LOG.error(
+                      "[REGISTRAR] Unable to reserve password for login: {} in namespace: {} in external system. " +
+                          "Exception: {}",
+                      login, loginNamespace, ex);
+                  throw new ApplicationNotCreatedException(
+                      "Application was not created. Reason: Unable to reserve password for login: " + login +
                           " in namespace: " + loginNamespace +
                           " in external system. Please contact support to fix this issue before new application " +
-"submission.",
-                          login, loginNamespace);
-                    }
-                    break; // use first pass with correct namespace
-                  }
+                          "submission.",
+                      login, loginNamespace);
                 }
               }
             } catch (ApplicationNotCreatedException ex) {
@@ -2538,7 +2775,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
       throw new PrivilegeException(sess, "getApplicationDataById");
     }
 
-    return jdbc.query("select id,item_id,shortname,value,assurance_level from application_data where app_id=?",
+    return jdbc.query("select id,item_id,shortname,value,assurance_level,was_editable from application_data " +
+                          "where app_id=?",
         (resultSet, rowNum) -> {
           ApplicationFormItemData data = new ApplicationFormItemData();
           data.setId(resultSet.getInt("id"));
@@ -2546,6 +2784,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
           data.setShortname(resultSet.getString("shortname"));
           data.setValue(resultSet.getString("value"));
           data.setAssuranceLevel(resultSet.getString("assurance_level"));
+          data.setWasEditable(resultSet.getBoolean("was_editable"));
           return data;
         }, appId);
 
@@ -3139,7 +3378,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
     try {
       return jdbc.queryForObject(
-          "select id,item_id,shortname,value,assurance_level from application_data where id=? and app_id=?",
+          "select id,item_id,shortname,value,assurance_level,was_editable from application_data where id=? and " +
+              "app_id=?",
           (resultSet, rowNum) -> {
             ApplicationFormItemData data = new ApplicationFormItemData();
             data.setId(resultSet.getInt("id"));
@@ -3147,6 +3387,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
             data.setShortname(resultSet.getString("shortname"));
             data.setValue(resultSet.getString("value"));
             data.setAssuranceLevel(resultSet.getString("assurance_level"));
+            data.setWasEditable(resultSet.getBoolean("was_editable"));
             return data;
           }, formItemDataId, applicationId);
     } catch (EmptyResultDataAccessException ex) {
@@ -3563,14 +3804,13 @@ public class RegistrarManagerImpl implements RegistrarManager {
    * Return string representation (key) of application used for locking main operations like
    * "create/verify/approve/reject".
    *
-   * @param application Application to get key for
    * @return Key for Application
    */
-  private String getLockKeyForApplication(Application application) {
+  private String getLockKeyForApplication(Vo vo, Group group, User submitter, AppType type) {
 
-    return application.getType().toString() + application.getVo().getShortName() +
-           ((application.getGroup() != null) ? application.getGroup().getName() : "nogroup") +
-           application.getCreatedBy() + application.getExtSourceName() + application.getExtSourceType();
+    return type.toString() + vo.getShortName() +
+           ((group != null) ? group.getName() : "nogroup") +
+           "user:" + (submitter != null ? submitter.hashCode() : "anonymous") + "type:" + type;
 
   }
 
@@ -4761,22 +5001,29 @@ public class RegistrarManagerImpl implements RegistrarManager {
     }
   }
 
-  private int processApplication(PerunSession session, Application application, List<ApplicationFormItemData> data)
-      throws PerunException {
-    return processApplication(session, application, data, null);
-  }
-
-  private int processApplication(PerunSession session, Application application,
-                                 List<ApplicationFormItemData> data, Invitation invitation)
-      throws PerunException {
-
-    // If user is known in Perun but unknown in GUI (user joined identity by consolidator)
-    if (application.getUser() == null && session.getPerunPrincipal().getUser() != null) {
-      application.setUser(session.getPerunPrincipal().getUser());
+  private int processApplication(PerunSession session, User submitter, Map<Integer, String> data, Vo vo, Group group,
+                                 AppType appType, String redirectUrl, Invitation invitation,
+                                 Map<String, List<String>> externalParams) throws PerunException {
+    if (vo == null && group != null) {
+      vo = vosManager.getVoById(session, group.getVoId());
+    }
+    if (group != null && (group.getVoId() != vo.getId())) {
+      throw new IllegalArgumentException("Group is not a group of the provided VO");
     }
 
+    Application application = new Application();
+    application.setUser(submitter); // retrieved from session (nullable), or in case of embedded from parent app
+    application.setType(appType); // in caller method make sure EMBEDDED cannot be passed in request
+    application.setVo(vo);
+    application.setGroup(group);
+    application.setExtSourceName(session.getPerunPrincipal().getExtSourceName());
+    application.setExtSourceType(session.getPerunPrincipal().getExtSourceType());
+    application.setExtSourceLoa(session.getPerunPrincipal().getExtSourceLoa());
+    String createdBy = appType == AppType.EMBEDDED ? "Automatically generated" : session.getPerunPrincipal().getActor();
+    application.setCreatedBy(createdBy);
+    application.setModifiedBy(createdBy);
     // lock to prevent multiple submission of same application on server side
-    String key = getLockKeyForApplication(application);
+    String key = getLockKeyForApplication(vo, group, submitter, appType);
 
     synchronized (runningCreateApplication) {
       if (runningCreateApplication.contains(key)) {
@@ -4789,33 +5036,30 @@ public class RegistrarManagerImpl implements RegistrarManager {
     // store user-ext-source attributes and redirectURL from session to application object
     if (application.getType() != AppType.EMBEDDED) {
       LinkedHashMap<String, String> map = new LinkedHashMap<>(session.getPerunPrincipal().getAdditionalInformations());
-      if (application.getFedInfo() != null && application.getFedInfo().contains("redirectURL")) {
-        String redirectURL = StringUtils.substringBetween(
-            application.getFedInfo().substring(application.getFedInfo().indexOf("redirectURL")), "\"", "\"");
-        if (redirectURL != null && !redirectURL.equals("null")) {
-          map.put("redirectURL", redirectURL);
-        }
+      if (redirectUrl != null && !redirectUrl.equals("null")) {
+        map.put("redirectURL", redirectUrl);
       }
       String additionalAttrs = BeansUtils.attributeValueToString(map, LinkedHashMap.class.getName());
       application.setFedInfo(additionalAttrs);
     }
 
-    Application processedApplication;
     try {
 
       // check whether Vo/Group uses new registrar
       throwIfNewRegistration(application, "Cannot submit old registrar applications " +
                                                "for this Vo/Group as long as it uses new Registrar");
 
+      ApplicationForm form = application.getGroup() != null ? getFormForGroup(application.getGroup()) :
+                getFormForVo(application.getVo());
       // throws exception if user already submitted application or is already a member or can't submit it by VO/Group
       // expiration rules.
-      checkDuplicateRegistrationAttempt(session, application.getType(),
-          (application.getGroup() != null) ? getFormForGroup(application.getGroup()) :
-              getFormForVo(application.getVo()));
+      checkDuplicateRegistrationAttempt(session, application.getType(), form);
+      List<ApplicationFormItemData> userData = checkSubmissibility(session, data,
+          form, appType, externalParams);
 
       // using this to init inner transaction
       // all minor exceptions inside are catched, if not, it's ok to throw them out
-      processedApplication = this.registrarManager.createApplicationInternal(session, application, data);
+      application = this.registrarManager.createApplicationInternal(session, application, userData);
     } catch (Exception ex) {
       // clear flag and re-throw exception, since application was processed with exception
       synchronized (runningCreateApplication) {
@@ -4825,30 +5069,30 @@ public class RegistrarManagerImpl implements RegistrarManager {
     }
 
     if (invitation != null) {
-      invitationsManager.setInvitationApplicationId(session, invitation, processedApplication.getId());
+      invitationsManager.setInvitationApplicationId(session, invitation, application.getId());
       invitationsManager.setInvitationStatus(session, invitation, InvitationStatus.ACCEPTED);
-      tryToVerifyApplicationEmailsFromInvitation(session, processedApplication, invitation);
+      tryToVerifyApplicationEmailsFromInvitation(session, application, invitation);
 
       LOG.debug("Invitation {} was assigned to application {} and marked as ACCEPTED",
-          invitation.getId(), processedApplication.getId());
+          invitation.getId(), application.getId());
     }
 
     // try to verify (or even auto-approve) application
     try {
-      boolean verified = tryToVerifyApplication(session, processedApplication);
+      boolean verified = tryToVerifyApplication(session, application);
       if (verified) {
         // try to APPROVE if auto approve
-        tryToAutoApproveApplication(session, processedApplication);
+        tryToAutoApproveApplication(session, application);
       } else {
         // send request validation notification
-        getMailManager().sendMessage(processedApplication, MailType.MAIL_VALIDATION, null, null);
+        getMailManager().sendMessage(application, MailType.MAIL_VALIDATION, null, null);
       }
       // refresh current session, if submission was successful,
       // since user might have been created.
       AuthzResolverBlImpl.refreshSession(session);
     } catch (Exception ex) {
       LOG.error("[REGISTRAR] Unable to verify or auto-approve application {}, because of exception {}",
-          processedApplication, ex);
+          application, ex);
       // clear flag and re-throw exception, since application was processed with exception
       synchronized (runningCreateApplication) {
         runningCreateApplication.remove(key);
@@ -4861,7 +5105,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
       runningCreateApplication.remove(key);
     }
 
-    return processedApplication.getId();
+    return application.getId();
 
   }
 
@@ -5416,16 +5660,26 @@ public class RegistrarManagerImpl implements RegistrarManager {
   }
 
   @Override
-  public Application submitApplication(PerunSession session, Application application,
-                                       List<ApplicationFormItemData> data) throws PerunException {
-    int appId = processApplication(session, application, data);
+  public Application submitApplication(PerunSession session, Map<Integer, String> data,
+                                       Vo vo, Group group, AppType appType, String redirectUrl,
+                                       Map<String, List<String>> externalParams) throws PerunException {
+    if (appType.equals(AppType.EMBEDDED)) {
+      throw new InternalErrorException("Cannot manually submit an embedded application");
+    }
+    int appId = processApplication(session, session.getPerunPrincipal().getUser(), data,
+        vo, group, appType, redirectUrl, null, externalParams);
     return getApplicationById(appId);
   }
 
   @Transactional(rollbackFor = Exception.class)
   @Override
-  public Application submitApplication(PerunSession session, Application application,
-                                       List<ApplicationFormItemData> data, UUID invitationToken) throws PerunException {
+  public Application submitApplication(PerunSession session, Map<Integer, String> data,
+                                       Vo vo, Group group, AppType appType, String redirectUrl,
+                                       Map<String, List<String>> externalParams,
+                                       UUID invitationToken) throws PerunException {
+    if (appType.equals(AppType.EMBEDDED)) {
+      throw new InternalErrorException("Cannot manually submit an embedded application");
+    }
     // lock this invitation
     synchronized (processingInvitation) {
       if (processingInvitation.contains(invitationToken)) {
@@ -5438,10 +5692,11 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
     int appId;
     try {
-      invitationsManagerBl.canInvitationBeAccepted(session, invitationToken, application.getGroup());
+      invitationsManagerBl.canInvitationBeAccepted(session, invitationToken, group);
       Invitation invitation = invitationsManager.getInvitationByToken(session, invitationToken);
 
-      appId = processApplication(session, application, data, invitation);
+      appId = processApplication(session, session.getPerunPrincipal().getUser(), data,
+        vo, group, appType, redirectUrl, invitation, externalParams);
     } catch (Exception ex) {
       synchronized (processingInvitation) {
         processingInvitation.remove(invitationToken);
@@ -5452,6 +5707,14 @@ public class RegistrarManagerImpl implements RegistrarManager {
       processingInvitation.remove(invitationToken);
     }
 
+    return getApplicationById(appId);
+  }
+
+  @Override
+  public Application submitEmbeddedApplication(PerunSession session, User submitter, Map<Integer, String> data,
+                                               Group group) throws PerunException {
+    int appId = processApplication(session, submitter, data, null, group, AppType.EMBEDDED, null, null,
+        new HashMap<>());
     return getApplicationById(appId);
   }
 
@@ -5514,17 +5777,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
     for (Group group : filteredGroups) {
       try {
-        Application groupApplication = new Application();
-        groupApplication.setUser(applicant);
-        groupApplication.setType(AppType.EMBEDDED);
-        groupApplication.setVo(app.getVo());
-        groupApplication.setGroup(group);
-        groupApplication.setFedInfo(app.getFedInfo());
-        groupApplication.setExtSourceName(app.getExtSourceName());
-        groupApplication.setExtSourceType(app.getExtSourceType());
-        groupApplication.setCreatedBy("Automatically generated");
-
-        submitApplication(registrarSession, groupApplication, new ArrayList<>());
+        submitEmbeddedApplication(registrarSession, applicant, new HashMap<>(), group);
       } catch (Exception e) {
         LOG.error("Error submitting embedded application {}", e);
         failedGroups.put(group.getId(), e.getMessage());
@@ -5897,7 +6150,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
   }
 
   public void updateFormItemData(PerunSession sess, int appId, ApplicationFormItemData data)
-      throws RegistrarException, PrivilegeException {
+      throws PerunException {
 
 
     Application app = getApplicationById(sess, appId);
@@ -5936,7 +6189,19 @@ public class RegistrarManagerImpl implements RegistrarManager {
       throw new RegistrarException(
           "The item " + existingData.getFormItem().getShortname() + " is not allowed to be updated.");
     }
-    updateFormItemData(sess, data);
+    if (!existingData.isWasEditable()) {
+      throw new RegistrarException(
+          "The item " + existingData.getFormItem().getShortname() +
+              " was not editable for the user at submission and cannot be updated.");
+    }
+    existingData.setValue(data.getValue());
+    ApplicationForm form = app.getGroup() == null ? getFormForVo(app.getVo()) : getFormForGroup(app.getGroup());
+    validateItemData(form, existingData);
+    if (existingData.getFormItem().getType().equals(VALIDATED_EMAIL)) {
+      setEmailItemPrefillForUpdate(app.getUser(), BeansUtils.stringToMapOfAttributes(app.getFedInfo()), app.getVo(),
+          app.getExtSourceLoa(), existingData);
+    }
+    updateFormItemData(sess, existingData);
 
   }
 
@@ -6271,6 +6536,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
     if (data == null || data.isEmpty()) {
       return;
     }
+    ApplicationForm form = app.getGroup() == null ? getFormForVo(app.getVo()) : getFormForGroup(app.getGroup());
 
     for (ApplicationFormItemData dataItem : data) {
 
@@ -6292,7 +6558,19 @@ public class RegistrarManagerImpl implements RegistrarManager {
         throw new RegistrarException(
             "The item " + existingData.getFormItem().getShortname() + " is not allowed to be updated.");
       }
-      updateFormItemData(sess, dataItem);
+      if (!existingData.isWasEditable()) {
+        throw new RegistrarException(
+            "The item " + existingData.getFormItem().getShortname() +
+                " was not editable for the user at submission and cannot be updated.");
+      }
+      existingData.setValue(dataItem.getValue());
+      validateItemData(form, existingData);
+      if (existingData.getFormItem().getType().equals(VALIDATED_EMAIL)) {
+        setEmailItemPrefillForUpdate(sess.getPerunPrincipal().getUser(), sess.getPerunPrincipal()
+                                                                             .getAdditionalInformations(), app.getVo(),
+            sess.getPerunPrincipal().getExtSourceLoa(), existingData);
+      }
+      updateFormItemData(sess, existingData);
 
     }
 
@@ -6309,6 +6587,45 @@ public class RegistrarManagerImpl implements RegistrarManager {
       getMailManager().sendMessage(app, MailType.MAIL_VALIDATION, null, null);
     }
 
+  }
+
+  private void setEmailItemPrefillForUpdate(User user, Map<String, String> fedInfo, Vo vo,
+                                            int loa,
+                                            ApplicationFormItemData emailData) {
+    ApplicationFormItem formItem = emailData.getFormItem();
+    String prefillValue = null;
+    String sourceAttr = formItem.getPerunSourceAttribute();
+    if (user != null && formItem.getPerunSourceAttribute() != null) {
+      try {
+        Attribute attribute = null;
+        if (sourceAttr.startsWith(AttributesManager.NS_USER_ATTR_DEF)) {
+          attribute = perun.getAttributesManagerBl().getAttribute(registrarSession,
+              user,
+              sourceAttr);
+        } else if (sourceAttr.startsWith(AttributesManager.NS_MEMBER_ATTR_DEF)) {
+          Member member = perun.getMembersManagerBl().getMemberByUser(registrarSession, vo,
+              user);
+          attribute = perun.getAttributesManagerBl().getAttribute(registrarSession, member, sourceAttr);
+        }
+        if (attribute != null) {
+          prefillValue = attribute.valueAsString();
+        }
+      } catch (Exception e) {
+        LOG.error("Failed to get prefill value for email when updating application data {}", emailData.getId(), e);
+        // keep prefill empty
+      }
+    }
+    String fedAttr = formItem.getFederationAttribute();
+    if (fedAttr != null) {
+      emailData.setAssuranceLevel(String.valueOf(loa));
+      String emailsFromFed = fedInfo.get(fedAttr);
+      if (prefillValue == null) {
+        prefillValue = emailsFromFed;
+      } else {
+        prefillValue += ";" + emailsFromFed;
+      }
+    }
+    emailData.setPrefilledValue(prefillValue);
   }
 
   /**

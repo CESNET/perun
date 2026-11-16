@@ -89,7 +89,8 @@ public class InvitationsManagerIntegrationTest extends AbstractRegistrarIntegrat
     registrarManager.createApplicationFormInGroup(session, group);
 
     Application applicationToVo = prepareApplicationToVo(user);
-    registrarManager.submitApplication(session, applicationToVo, new ArrayList<>());
+    registrarManager.submitApplication(getUserSession(user), new HashMap<>(),
+        applicationToVo.getVo(), applicationToVo.getGroup(), applicationToVo.getType(), null, null);
 
     Invitation invitation = new Invitation(0, vo.getId(), group.getId(), sender.getId(),
         "receiver name", "receiver@email.com", Locale.ENGLISH,
@@ -97,8 +98,9 @@ public class InvitationsManagerIntegrationTest extends AbstractRegistrarIntegrat
     invitation = invitationsManager.createInvitation(session, invitation);
 
     Application applicationToGroup = prepareApplicationToGroup(user, group);
-    applicationToGroup =
-        registrarManager.submitApplication(session, applicationToGroup, new ArrayList<>(), invitation.getToken());
+    applicationToGroup = registrarManager.submitApplication(getUserSession(user), new HashMap<>(),
+        applicationToGroup.getVo(), applicationToGroup.getGroup(), applicationToGroup.getType(), null, null,
+        invitation.getToken());
 
     invitation = invitationsManager.getInvitationById(session, invitation.getId());
     assertEquals(invitation, invitationsManager.getInvitationByApplication(session, applicationToGroup));
@@ -116,11 +118,13 @@ public class InvitationsManagerIntegrationTest extends AbstractRegistrarIntegrat
     registrarManager.createApplicationFormInGroup(session, group);
 
     Application applicationToVo = prepareApplicationToVo(user);
-    registrarManager.submitApplication(session, applicationToVo, new ArrayList<>());
+    applicationToVo = registrarManager.submitApplication(getUserSession(user), new HashMap<>(),
+        applicationToVo.getVo(), applicationToVo.getGroup(), applicationToVo.getType(), null, null);
     registrarManager.approveApplication(session, applicationToVo.getId());
 
     Application applicationToGroup = prepareApplicationToGroup(user, group);
-    applicationToGroup = registrarManager.submitApplication(session, applicationToGroup, new ArrayList<>());
+    applicationToGroup = registrarManager.submitApplication(getUserSession(user), new HashMap<>(),
+        applicationToGroup.getVo(), applicationToGroup.getGroup(), applicationToGroup.getType(), null, null);
     registrarManager.approveApplication(session, applicationToGroup.getId());
 
     assertNull(invitationsManager.getInvitationByApplication(session, applicationToGroup));

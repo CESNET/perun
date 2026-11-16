@@ -1,4 +1,4 @@
--- database version 3.2.37 (don't forget to update insert statement at the end of file)
+-- database version 3.2.38 (don't forget to update insert statement at the end of file)
 CREATE
 EXTENSION IF NOT EXISTS "unaccent";
 CREATE
@@ -639,6 +639,7 @@ create table application_data
     item_id         integer,          --identifier of item (application_form_items.id)
     shortname       varchar,          --name of item
     value           varchar,          --value of item
+    was_editable boolean default true not null,
     assurance_level varchar,          --level of assurance of item of newly registered user
     created_by_uid  integer,
     modified_by_uid integer,
@@ -1970,7 +1971,7 @@ create index idx_fk_blk_attr_attr_names on blocked_attr_values(attr_id);
 
 -- set initial Perun DB version
 insert into configurations
-values ('DATABASE VERSION', '3.2.37');
+values ('DATABASE VERSION', '3.2.38');
 insert into configurations
 values ('suspendGroupSync', 'false');
 insert into configurations

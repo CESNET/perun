@@ -1,4 +1,4 @@
--- database version 3.2.37 (don't forget to update insert statement at the end of file)
+-- database version 3.2.38 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table vos (
@@ -597,6 +597,7 @@ create table application_data (
 	item_id integer,          --identifier of item (application_form_items.id)
 	shortname varchar,   --name of item
 	value varchar,      --value of item
+	was_editable boolean default true not null,
 	assurance_level varchar, --level of assurance of item of newly registered user
 	created_by_uid integer,
 	modified_by_uid integer,
@@ -1954,7 +1955,7 @@ grant all on auto_registration_groups to perun;
 grant all on invitations to perun;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.2.37');
+insert into configurations values ('DATABASE VERSION','3.2.38');
 
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');

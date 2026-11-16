@@ -233,21 +233,6 @@ public interface RegistrarManager {
   void copyFormFromVoToVo(PerunSession sess, Vo fromVo, Vo toVo, boolean idempotent) throws PerunException;
 
   /**
-   * Creates a new application and if succeeds, trigger validation and approval.
-   *
-   * <p>The method triggers approval for VOs with auto-approved applications.
-   *
-   * @param user        user present in session
-   * @param application application
-   * @param data        data
-   * @return stored app data
-   * @throws PerunException
-   */
-  @Deprecated
-  List<ApplicationFormItemData> createApplication(PerunSession user, Application application,
-                                                  List<ApplicationFormItemData> data) throws PerunException;
-
-  /**
    * Create application form for Group
    *
    * @param sess  for authz
@@ -783,14 +768,19 @@ public interface RegistrarManager {
    *
    * <p>The method triggers approval for VOs with auto-approved applications.
    *
-   * @param session         user present in session
-   * @param application     application
-   * @param data            data
+   * @param session        user present in session
+   * @param data           data for the application form items
+   * @param vo             target VO, null for group applications
+   * @param group          target group, null for VO applications
+   * @param appType        type of application, {@code INITIAL} or {@code EXTENSION}; {@code EMBEDDED} is rejected
+   * @param redirectUrl    optional URL to redirect user to after submission
+   * @param externalParams additional parameters to be stored with the application
    * @return Application Submitted application
    * @throws PerunException
    */
-  Application submitApplication(PerunSession session, Application application, List<ApplicationFormItemData> data)
-      throws PerunException;
+  Application submitApplication(PerunSession session, Map<Integer, String> data,
+                                       Vo vo, Group group, AppType appType, String redirectUrl,
+                                       Map<String, List<String>> externalParams) throws PerunException;
 
   /**
    * Creates a new application from pre-approved invite and if succeeds, trigger validation and approval.
@@ -798,15 +788,33 @@ public interface RegistrarManager {
    * <p>The method triggers approval for VOs with auto-approved applications.
    *
    * @param session         user present in session
-   * @param application     application
-   * @param data            data
+   * @param data            data for the application form items
+   * @param vo              target VO, null for group applications
+   * @param group           target group, null for VO applications
+   * @param appType         type of application, {@code INITIAL} or {@code EXTENSION}; {@code EMBEDDED} is rejected
+   * @param redirectUrl     optional URL to redirect user to after submission
+   * @param externalParams  additional parameters to be stored with the application
    * @param invitationToken uuid corresponding to pre-approved invitation if application is to be paired with one
    * @return Application Submitted application
    * @throws PerunException
    */
-  Application submitApplication(PerunSession session, Application application, List<ApplicationFormItemData> data,
-                                UUID invitationToken)
-      throws PerunException;
+  Application submitApplication(PerunSession session, Map<Integer, String> data,
+                                       Vo vo, Group group, AppType appType, String redirectUrl,
+                                       Map<String, List<String>> externalParams,
+                                UUID invitationToken) throws PerunException;
+
+  /**
+   * Creates a new embedded application into the provided group as the provided applicant.
+   *
+   * @param session   user present in session
+   * @param submitter applicant for whom the embedded application is created
+   * @param data      data for the application form items
+   * @param group     target embedded group
+   * @return Application submitted embedded application
+   * @throws PerunException
+   */
+  Application submitEmbeddedApplication(PerunSession session, User submitter, Map<Integer, String> data,
+                                               Group group) throws PerunException;
 
   /**
    * Updates application type in db.
@@ -851,13 +859,11 @@ public interface RegistrarManager {
    * @param session
    * @param applicationId ID of submitted application
    * @param data          Form item data to update
-   * @throws InternalErrorException
-   * @throws PrivilegeException
-   * @throws RegistrarException
+   * @throws PerunException
    */
   @Deprecated
   void updateFormItemData(PerunSession session, int applicationId, ApplicationFormItemData data)
-      throws PrivilegeException, RegistrarException;
+      throws PerunException;
 
   /**
    * Updates internationalized texts for a form item.
