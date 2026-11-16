@@ -93,7 +93,7 @@ public interface RegistrarAdapter {
 
   boolean doesVoHaveExtensionForm(Vo vo);
 
-  String getInviteUrlForVo(Vo vo);
+  String getInviteUrlForVo(Vo vo, String groupRedirectUrl);
 
   String getInviteUrlForGroup(Group group);
 

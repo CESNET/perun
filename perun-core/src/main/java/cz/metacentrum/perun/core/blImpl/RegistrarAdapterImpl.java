@@ -293,11 +293,11 @@ public class RegistrarAdapterImpl implements RegistrarAdapter {
   }
 
   @Override
-  public String getInviteUrlForVo(Vo vo) {
+  public String getInviteUrlForVo(Vo vo, String groupRedirectUrl) {
     if (registrarApi == null) {
       return "";
     }
-    return registrarApi.inviteUrl("VO", String.valueOf(vo.getId()), null)
+    return registrarApi.inviteUrl("VO", String.valueOf(vo.getId()), null, groupRedirectUrl)
                .block();
   }
 
@@ -315,7 +315,7 @@ public class RegistrarAdapterImpl implements RegistrarAdapter {
     if (registrarApi == null) {
       return "";
     }
-    return registrarApi.inviteUrl("GROUP", String.valueOf(group.getId()), null)
+    return registrarApi.inviteUrl("GROUP", String.valueOf(group.getId()), null, null)
                .block();
   }
 

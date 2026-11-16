@@ -43,7 +43,6 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
-import cz.metacentrum.perun.core.api.exceptions.ExternallyManagedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InvalidHtmlInputException;
@@ -412,7 +411,7 @@ public class MailManagerImpl implements MailManager {
         useNewAttr = null;
       }
       if (useNewAttr != null && useNewAttr.getValue() != null && useNewAttr.valueAsBoolean()) {
-        return this.perun.getRegistrarAdapter().getInviteUrlForVo(vo);
+        return this.perun.getRegistrarAdapter().getInviteUrlForVo(vo, null);
       }
     }
 
