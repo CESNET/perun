@@ -5,6 +5,7 @@ import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.CS;
 import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.EN;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
@@ -19,6 +20,7 @@ import static org.mockito.Mockito.verify;
 
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
@@ -37,6 +39,7 @@ import cz.metacentrum.perun.core.api.exceptions.FormItemNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupMoveNotAllowedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAllowedToAutoRegistrationException;
 import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InvalidHtmlInputException;
 import cz.metacentrum.perun.core.api.exceptions.MissingSubmitButtonException;
 import cz.metacentrum.perun.core.api.exceptions.MultipleApplicationFormItemsException;
@@ -47,7 +50,13 @@ import cz.metacentrum.perun.core.bl.GroupsManagerBl;
 import cz.metacentrum.perun.core.bl.MembersManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.registrar.exceptions.ApplicationMailTextMissingException;
+import cz.metacentrum.perun.registrar.exceptions.ForeignItemsDetectedException;
+import cz.metacentrum.perun.registrar.exceptions.IllegalEmbeddedGroupException;
+import cz.metacentrum.perun.registrar.exceptions.ItemVisibilityBrokenException;
+import cz.metacentrum.perun.registrar.exceptions.RegexValidationFailedException;
 import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
+import cz.metacentrum.perun.registrar.exceptions.RequiredItemMissingException;
+import cz.metacentrum.perun.registrar.exceptions.SelectionValidationFailedException;
 import cz.metacentrum.perun.registrar.impl.RegistrarManagerImpl;
 import cz.metacentrum.perun.registrar.model.Application;
 import cz.metacentrum.perun.registrar.model.Application.AppType;
@@ -131,7 +140,8 @@ public class RegistrarBaseIntegrationTest extends AbstractRegistrarIntegrationTe
             itemW.getAssuranceLevel()));
       }
     }
-    registrarManager.createApplication(user, application, data);
+    registrarManager.submitApplication(user, getItemDataMap(data), application.getVo(), application.getGroup(),
+        application.getType(), null, null);
   }
 
   @Test
@@ -582,6 +592,490 @@ System.out.println("APPS ["+result.size()+"]:" + result);
   }
 
   @Test
+  public void submitApplicationWithMissingRequiredItemTest() throws PerunException {
+    ApplicationForm form = registrarManager.getFormForVo(vo);
+    ApplicationFormItem item = new ApplicationFormItem();
+    item.setShortname("required");
+    item.setRequired(true);
+    registrarManager.addFormItem(session, form, item);
+
+    assertThatExceptionOfType(RequiredItemMissingException.class).isThrownBy(
+        () -> registrarManager.submitApplication(session, new HashMap<>(), vo, null, INITIAL, null, null));
+  }
+
+  @Test
+  public void submitApplicationWithValidRequiredItemTest() throws PerunException {
+    ApplicationForm form = registrarManager.getFormForVo(vo);
+    ApplicationFormItem item = new ApplicationFormItem();
+    item.setShortname("required");
+    item.setRequired(true);
+    ApplicationFormItem savedItem = registrarManager.addFormItem(session, form, item);
+
+    Application application = registrarManager.submitApplication(session, Map.of(savedItem.getId(), "value"), vo, null,
+        INITIAL, null, null);
+
+    assertThat(application.getId()).isPositive();
+  }
+
+  @Test
+  public void submitApplicationWithMissingRequiredCheckboxItemTest() throws PerunException {
+    ApplicationForm form = registrarManager.getFormForVo(vo);
+    ApplicationFormItem item = new ApplicationFormItem();
+    item.setShortname("requiredCheckbox");
+    item.setType(ApplicationFormItem.Type.CHECKBOX);
+    item.setRequired(true);
+    item.getI18n().values().forEach(texts -> texts.setOptions("allowed#Allowed"));
+    ApplicationFormItem savedItem = registrarManager.addFormItem(session, form, item);
+
+    assertThatExceptionOfType(RequiredItemMissingException.class).isThrownBy(
+        () -> registrarManager.submitApplication(session, new HashMap<>(), vo, null, INITIAL, null, null));
+
+    assertThatExceptionOfType(RequiredItemMissingException.class).isThrownBy(
+        () -> registrarManager.submitApplication(session, Map.of(savedItem.getId(), "|"), vo, null, INITIAL, null,
+            null));
+  }
+
+  @Test
+  public void submitApplicationWithInvalidCheckboxValueTest() throws PerunException {
+    ApplicationForm form = registrarManager.getFormForVo(vo);
+    ApplicationFormItem item = new ApplicationFormItem();
+    item.setShortname("checkbox");
+    item.setType(ApplicationFormItem.Type.CHECKBOX);
+    item.getI18n().values().forEach(texts -> texts.setOptions("allowed#Allowed"));
+    ApplicationFormItem savedItem = registrarManager.addFormItem(session, form, item);
+
+    assertThatExceptionOfType(SelectionValidationFailedException.class).isThrownBy(
+        () -> registrarManager.submitApplication(session, Map.of(savedItem.getId(), "notAllowed"), vo, null, INITIAL,
+            null, null));
+  }
+
+  @Test
+  public void submitApplicationWithTrailingPipeCheckboxItemTest() throws PerunException {
+    ApplicationForm form = registrarManager.getFormForVo(vo);
+    ApplicationFormItem item = new ApplicationFormItem();
+    item.setShortname("checkbox");
+    item.setType(ApplicationFormItem.Type.CHECKBOX);
+    item.getI18n().values().forEach(texts -> texts.setOptions("allowed#Allowed"));
+    ApplicationFormItem savedItem = registrarManager.addFormItem(session, form, item);
+
+    Application application = registrarManager.submitApplication(
+        session, Map.of(savedItem.getId(), "allowed|"), vo, null, INITIAL, null, null);
+
+    assertThat(application.getId()).isPositive();
+  }
+
+  @Test
+  public void submitApplicationWithValidRequiredCheckboxItemTest() throws PerunException {
+    ApplicationForm form = registrarManager.getFormForVo(vo);
+    ApplicationFormItem item = new ApplicationFormItem();
+    item.setShortname("requiredCheckbox");
+    item.setType(ApplicationFormItem.Type.CHECKBOX);
+    item.setRequired(true);
+    item.getI18n().values().forEach(texts -> texts.setOptions("a#A|b#B"));
+    ApplicationFormItem savedItem = registrarManager.addFormItem(session, form, item);
+
+    Application application = registrarManager.submitApplication(session,
+        Map.of(savedItem.getId(), "a|b"), vo, null, INITIAL, null, null);
+
+    assertThat(application.getId()).isPositive();
+  }
+
+  @Test
+  public void submitApplicationWithInvalidRegexTest() throws PerunException {
+    ApplicationForm form = registrarManager.getFormForVo(vo);
+    ApplicationFormItem item = new ApplicationFormItem();
+    item.setShortname("regex");
+    item.setRegex("^valid$");
+    ApplicationFormItem savedItem = registrarManager.addFormItem(session, form, item);
+
+    assertThatExceptionOfType(RegexValidationFailedException.class).isThrownBy(
+        () -> registrarManager.submitApplication(session, Map.of(savedItem.getId(), "invalid"), vo, null, INITIAL,
+            null, null));
+  }
+
+  @Test
+  public void submitApplicationWithValidRegexTest() throws PerunException {
+    ApplicationForm form = registrarManager.getFormForVo(vo);
+    ApplicationFormItem item = new ApplicationFormItem();
+    item.setShortname("regex");
+    item.setRegex("^valid$");
+    ApplicationFormItem savedItem = registrarManager.addFormItem(session, form, item);
+
+    Application application = registrarManager.submitApplication(session, Map.of(savedItem.getId(), "valid"), vo, null,
+        INITIAL, null, null);
+
+    assertThat(application.getId()).isPositive();
+  }
+
+  @Test
+  public void submitApplicationWithInvalidSelectionTest() throws PerunException {
+    ApplicationForm form = registrarManager.getFormForVo(vo);
+    ApplicationFormItem item = new ApplicationFormItem();
+    item.setShortname("selection");
+    item.setType(ApplicationFormItem.Type.RADIO);
+    item.getI18n().values().forEach(texts -> texts.setOptions("allowed#Allowed"));
+    ApplicationFormItem savedItem = registrarManager.addFormItem(session, form, item);
+
+    assertThatExceptionOfType(SelectionValidationFailedException.class).isThrownBy(
+        () -> registrarManager.submitApplication(session, Map.of(savedItem.getId(), "not-allowed"), vo, null, INITIAL,
+            null, null));
+  }
+
+  @Test
+  public void submitApplicationWithValidSelectionTest() throws PerunException {
+    ApplicationForm form = registrarManager.getFormForVo(vo);
+    ApplicationFormItem item = new ApplicationFormItem();
+    item.setShortname("selection");
+    item.setType(ApplicationFormItem.Type.RADIO);
+    item.getI18n().values().forEach(texts -> texts.setOptions("allowed#Allowed"));
+    ApplicationFormItem savedItem = registrarManager.addFormItem(session, form, item);
+
+    Application application = registrarManager.submitApplication(session, Map.of(savedItem.getId(), "allowed"), vo,
+        null, INITIAL, null, null);
+
+    assertThat(application.getId()).isPositive();
+  }
+
+  @Test
+  public void submitApplicationWithForeignItemTest() throws PerunException {
+    Vo otherVo = perun.getVosManagerBl().createVo(session, new Vo(-1, "otherVo", "otherVo"));
+    ApplicationFormItem item = new ApplicationFormItem();
+    item.setShortname("foreign");
+    ApplicationFormItem foreignItem =
+        registrarManager.addFormItem(session, registrarManager.getFormForVo(otherVo), item);
+
+    assertThatExceptionOfType(ForeignItemsDetectedException.class).isThrownBy(
+        () -> registrarManager.submitApplication(session, Map.of(foreignItem.getId(), "value"), vo, null, INITIAL,
+            null, null));
+  }
+
+  @Test
+  public void submitApplicationWithLocalItemTest() throws PerunException {
+    ApplicationFormItem item = new ApplicationFormItem();
+    item.setShortname("local");
+    ApplicationFormItem localItem = registrarManager.addFormItem(session, registrarManager.getFormForVo(vo), item);
+
+    Application application = registrarManager.submitApplication(session, Map.of(localItem.getId(), "value"), vo, null,
+        INITIAL, null, null);
+
+    assertThat(application.getId()).isPositive();
+  }
+
+  @Test
+  public void submitApplicationWithUnauthorizedEmbeddedGroupTest() throws PerunException {
+    ApplicationForm form = registrarManager.getFormForVo(vo);
+    ApplicationFormItem item = new ApplicationFormItem();
+    item.setType(ApplicationFormItem.Type.EMBEDDED_GROUP_APPLICATION);
+    item.setShortname("embeddedGroups");
+    item.setApplicationTypes(List.of(INITIAL));
+    ApplicationFormItem savedItem = registrarManager.addFormItem(session, form, item);
+    Group allowedGroup = perun.getGroupsManagerBl().createGroup(session, vo, new Group("allowed", "Allowed"));
+    registrarManager.addGroupsToAutoRegistration(session, List.of(allowedGroup), savedItem);
+    Group group = perun.getGroupsManagerBl().createGroup(session, vo, new Group("notAllowed", "Not allowed"));
+
+    assertThatExceptionOfType(IllegalEmbeddedGroupException.class).isThrownBy(
+        () -> registrarManager.submitApplication(session, Map.of(savedItem.getId(), "Not allowed#" + group.getId()),
+            vo, null, INITIAL, null, null));
+  }
+
+  @Test
+  public void submitApplicationWithAuthorizedEmbeddedGroupTest() throws PerunException {
+    ApplicationForm form = registrarManager.getFormForVo(vo);
+    ApplicationFormItem item = new ApplicationFormItem();
+    item.setType(ApplicationFormItem.Type.EMBEDDED_GROUP_APPLICATION);
+    item.setShortname("embeddedGroups");
+    item.setApplicationTypes(List.of(INITIAL));
+    ApplicationFormItem savedItem = registrarManager.addFormItem(session, form, item);
+    Group group = perun.getGroupsManagerBl().createGroup(session, vo, new Group("allowed", "Allowed"));
+    registrarManager.addGroupsToAutoRegistration(session, List.of(group), savedItem);
+
+    Application application = registrarManager.submitApplication(session,
+        Map.of(savedItem.getId(), "Allowed#" + group.getId()), vo, null, INITIAL, null, null);
+
+    assertThat(application.getId()).isPositive();
+  }
+
+  @Test
+  public void submitApplicationWithModifiedHiddenItemTest() throws PerunException {
+    ApplicationForm form = registrarManager.getFormForVo(vo);
+    ApplicationFormItem item = new ApplicationFormItem();
+    item.setShortname("hidden");
+    item.setHidden(ApplicationFormItem.Hidden.ALWAYS);
+    ApplicationFormItem savedItem = registrarManager.addFormItem(session, form, item);
+
+    assertThatExceptionOfType(ItemVisibilityBrokenException.class).isThrownBy(
+        () -> registrarManager.submitApplication(session, Map.of(savedItem.getId(), "modified"), vo, null, INITIAL,
+            null, null));
+  }
+
+  @Test
+  public void submitApplicationWithUnchangedHiddenItemTest() throws PerunException {
+    ApplicationForm form = registrarManager.getFormForVo(vo);
+    ApplicationFormItem item = new ApplicationFormItem();
+    item.setShortname("hidden");
+    item.setHidden(ApplicationFormItem.Hidden.ALWAYS);
+    ApplicationFormItem savedItem = registrarManager.addFormItem(session, form, item);
+
+    Application application = registrarManager.submitApplication(session, Map.of(savedItem.getId(), ""), vo, null,
+        INITIAL, null, null);
+
+    assertThat(application.getId()).isPositive();
+  }
+
+  @Test
+  public void submitApplicationWithModifiedDisabledItemTest() throws PerunException {
+    ApplicationForm form = registrarManager.getFormForVo(vo);
+    ApplicationFormItem item = new ApplicationFormItem();
+    item.setShortname("disabled");
+    item.setDisabled(ApplicationFormItem.Disabled.ALWAYS);
+    ApplicationFormItem savedItem = registrarManager.addFormItem(session, form, item);
+
+    assertThatExceptionOfType(ItemVisibilityBrokenException.class).isThrownBy(
+        () -> registrarManager.submitApplication(session, Map.of(savedItem.getId(), "modified"), vo, null, INITIAL,
+            null, null));
+  }
+
+  @Test
+  public void submitApplicationWithUnchangedDisabledItemTest() throws PerunException {
+    ApplicationForm form = registrarManager.getFormForVo(vo);
+    ApplicationFormItem item = new ApplicationFormItem();
+    item.setShortname("disabled");
+    item.setDisabled(ApplicationFormItem.Disabled.ALWAYS);
+    item.setUpdatable(true);
+    ApplicationFormItem savedItem = registrarManager.addFormItem(session, form, item);
+
+    Application application = registrarManager.submitApplication(session, Map.of(savedItem.getId(), ""), vo, null,
+        INITIAL, null, null);
+
+    assertThat(application.getId()).isPositive();
+
+    List<ApplicationFormItemData> appData = registrarManager.getApplicationDataById(session, application.getId());
+    ApplicationFormItemData disabledData = appData.stream()
+        .filter(d -> d.getFormItem().getId() == savedItem.getId())
+        .findFirst().orElseThrow();
+    assertThat(disabledData.isWasEditable()).isFalse();
+
+    assertThatExceptionOfType(RegistrarException.class).isThrownBy(
+        () -> registrarManager.updateFormItemData(session, application.getId(), disabledData))
+        .withMessageContaining("was not editable for the user at submission");
+  }
+
+  @Test
+  public void submitApplicationWithModifiedGeneratedDisabledItemTest() throws PerunException {
+    ApplicationForm form = registrarManager.getFormForVo(vo);
+    form.setModuleClassNames(List.of("AdminMeta"));
+    registrarManager.updateForm(session, form);
+    form = registrarManager.getFormForVo(vo);
+    ApplicationFormItem item = new ApplicationFormItem();
+    item.setShortname("generated");
+    item.setType(ApplicationFormItem.Type.USERNAME);
+    item.setDisabled(ApplicationFormItem.Disabled.IF_EMPTY);
+    item.setPerunDestinationAttribute(
+        AttributesManager.NS_USER_ATTR_DEF + ":" + AttributesManager.LOGIN_NAMESPACE + ":einfra");
+    ApplicationFormItem savedItem = registrarManager.addFormItem(session, form, item);
+
+    User user = perun.getUsersManagerBl().createUser(session, new User(0, "Generated", "Disabled", "", "", ""));
+    String login = "genl" + System.nanoTime() % 10000000;
+    perun.getUsersManagerBl().reserveLogin(session, login, user.getId(), "einfra", "Pass12345678!");
+
+    Application application =
+        registrarManager.submitApplication(getUserSession(user), Map.of(savedItem.getId(), "changed"), vo, null,
+            INITIAL, null, null);
+
+    assertThat(application.getId()).isPositive();
+  }
+
+  @Test
+  public void submitApplicationWithModifiedGeneratedHiddenItemTest() throws PerunException {
+    ApplicationForm form = registrarManager.getFormForVo(vo);
+    ApplicationFormItem item = new ApplicationFormItem();
+    item.setShortname("generatedHidden");
+    item.setHidden(ApplicationFormItem.Hidden.ALWAYS);
+    item.setPerunSourceAttribute("urn:perun:user:attribute-def:core:preferredMail");
+    ApplicationFormItem savedItem = registrarManager.addFormItem(session, form, item);
+
+    User user = perun.getUsersManagerBl().createUser(session, new User(0, "Generated", "Hidden", "", "", ""));
+    Attribute mail = new Attribute(
+        perun.getAttributesManagerBl().getAttributeDefinition(session,
+            AttributesManager.NS_USER_ATTR_DEF + ":preferredMail"));
+    mail.setValue("generated@example.com");
+    perun.getAttributesManagerBl().setAttribute(session, user, mail);
+
+    assertThatExceptionOfType(ItemVisibilityBrokenException.class).isThrownBy(
+        () -> registrarManager.submitApplication(getUserSession(user), Map.of(savedItem.getId(), "modified"), vo,
+            null, INITIAL, null, null));
+  }
+
+  @Test
+  public void submitApplicationWithUnchangedHiddenEmailItemTest() throws PerunException {
+    ApplicationForm form = registrarManager.getFormForVo(vo);
+    ApplicationFormItem item = new ApplicationFormItem();
+    item.setShortname("hiddenMail");
+    item.setType(ApplicationFormItem.Type.VALIDATED_EMAIL);
+    item.setHidden(ApplicationFormItem.Hidden.ALWAYS);
+    item.setPerunSourceAttribute(AttributesManager.NS_USER_ATTR_DEF + ":preferredMail");
+    ApplicationFormItem savedItem = registrarManager.addFormItem(session, form, item);
+
+    User user = perun.getUsersManagerBl().createUser(session, new User(0, "Email", "Hidden", "", "", ""));
+    Attribute mail = new Attribute(
+        perun.getAttributesManagerBl().getAttributeDefinition(session,
+            AttributesManager.NS_USER_ATTR_DEF + ":preferredMail"));
+    mail.setValue("user@example.com");
+    perun.getAttributesManagerBl().setAttribute(session, user, mail);
+
+    Application application = registrarManager.submitApplication(getUserSession(user),
+        Map.of(savedItem.getId(), "user@example.com"), vo, null, INITIAL, null, null);
+    assertThat(application.getId()).isPositive();
+  }
+
+  @Test
+  public void submitApplicationWithUnchangedHiddenEmailItemDifferentCaseTest() throws PerunException {
+    ApplicationForm form = registrarManager.getFormForVo(vo);
+    ApplicationFormItem item = new ApplicationFormItem();
+    item.setShortname("hiddenMail");
+    item.setType(ApplicationFormItem.Type.VALIDATED_EMAIL);
+    item.setHidden(ApplicationFormItem.Hidden.ALWAYS);
+    item.setPerunSourceAttribute(AttributesManager.NS_USER_ATTR_DEF + ":preferredMail");
+    ApplicationFormItem savedItem = registrarManager.addFormItem(session, form, item);
+
+    User user = perun.getUsersManagerBl().createUser(session, new User(0, "Email", "Case", "", "", ""));
+    Attribute mail = new Attribute(
+        perun.getAttributesManagerBl().getAttributeDefinition(session,
+            AttributesManager.NS_USER_ATTR_DEF + ":preferredMail"));
+    mail.setValue("User@Example.COM");
+    perun.getAttributesManagerBl().setAttribute(session, user, mail);
+
+    Application application = registrarManager.submitApplication(getUserSession(user),
+        Map.of(savedItem.getId(), "user@example.com"), vo, null, INITIAL, null, null);
+    assertThat(application.getId()).isPositive();
+  }
+
+  @Test
+  public void submitApplicationWithUnchangedHiddenEmailItemNoPrefillTest() throws PerunException {
+    ApplicationForm form = registrarManager.getFormForVo(vo);
+    ApplicationFormItem item = new ApplicationFormItem();
+    item.setShortname("hiddenMail");
+    item.setType(ApplicationFormItem.Type.VALIDATED_EMAIL);
+    item.setHidden(ApplicationFormItem.Hidden.ALWAYS);
+    ApplicationFormItem savedItem = registrarManager.addFormItem(session, form, item);
+
+    User user = perun.getUsersManagerBl().createUser(session, new User(0, "Email", "NoPrefill", "", "", ""));
+
+    Application application = registrarManager.submitApplication(getUserSession(user),
+        Map.of(savedItem.getId(), ""), vo, null, INITIAL, null, null);
+    assertThat(application.getId()).isPositive();
+  }
+
+  @Test
+  public void submitApplicationWithModifiedHiddenEmailItemNoPrefillTest() throws PerunException {
+    ApplicationForm form = registrarManager.getFormForVo(vo);
+    ApplicationFormItem item = new ApplicationFormItem();
+    item.setShortname("hiddenMail");
+    item.setType(ApplicationFormItem.Type.VALIDATED_EMAIL);
+    item.setHidden(ApplicationFormItem.Hidden.ALWAYS);
+    ApplicationFormItem savedItem = registrarManager.addFormItem(session, form, item);
+
+    User user = perun.getUsersManagerBl().createUser(session, new User(0, "Email", "NoPrefillMod", "", "", ""));
+
+    assertThatExceptionOfType(ItemVisibilityBrokenException.class).isThrownBy(
+        () -> registrarManager.submitApplication(getUserSession(user),
+            Map.of(savedItem.getId(), "sneaky@example.com"), vo, null, INITIAL, null, null));
+  }
+
+  @Test
+  public void submitApplicationWithModifiedHiddenEmailItemTest() throws PerunException {
+    ApplicationForm form = registrarManager.getFormForVo(vo);
+    ApplicationFormItem item = new ApplicationFormItem();
+    item.setShortname("hiddenMail");
+    item.setType(ApplicationFormItem.Type.VALIDATED_EMAIL);
+    item.setHidden(ApplicationFormItem.Hidden.ALWAYS);
+    item.setPerunSourceAttribute(AttributesManager.NS_USER_ATTR_DEF + ":preferredMail");
+    ApplicationFormItem savedItem = registrarManager.addFormItem(session, form, item);
+
+    User user = perun.getUsersManagerBl().createUser(session, new User(0, "Email", "Modified", "", "", ""));
+    Attribute mail = new Attribute(
+        perun.getAttributesManagerBl().getAttributeDefinition(session,
+            AttributesManager.NS_USER_ATTR_DEF + ":preferredMail"));
+    mail.setValue("user@example.com");
+    perun.getAttributesManagerBl().setAttribute(session, user, mail);
+
+    assertThatExceptionOfType(ItemVisibilityBrokenException.class).isThrownBy(
+        () -> registrarManager.submitApplication(getUserSession(user), Map.of(savedItem.getId(), "other@domain.cz"),
+            vo, null, INITIAL, null, null));
+  }
+
+  @Test
+  public void submitApplicationWithUnchangedDisabledEmailItemTest() throws PerunException {
+    ApplicationForm form = registrarManager.getFormForVo(vo);
+    ApplicationFormItem item = new ApplicationFormItem();
+    item.setShortname("disabledMail");
+    item.setType(ApplicationFormItem.Type.VALIDATED_EMAIL);
+    item.setDisabled(ApplicationFormItem.Disabled.ALWAYS);
+    item.setUpdatable(true);
+    item.setPerunSourceAttribute(AttributesManager.NS_USER_ATTR_DEF + ":preferredMail");
+    ApplicationFormItem savedItem = registrarManager.addFormItem(session, form, item);
+
+    User user = perun.getUsersManagerBl().createUser(session, new User(0, "Email", "Disabled", "", "", ""));
+    Attribute mail = new Attribute(
+        perun.getAttributesManagerBl().getAttributeDefinition(session,
+            AttributesManager.NS_USER_ATTR_DEF + ":preferredMail"));
+    mail.setValue("user@example.com");
+    perun.getAttributesManagerBl().setAttribute(session, user, mail);
+
+    Application application = registrarManager.submitApplication(getUserSession(user),
+        Map.of(savedItem.getId(), "user@example.com"), vo, null, INITIAL, null, null);
+    assertThat(application.getId()).isPositive();
+
+    List<ApplicationFormItemData> appData = registrarManager.getApplicationDataById(session, application.getId());
+    ApplicationFormItemData emailData = appData.stream()
+        .filter(d -> d.getFormItem().getId() == savedItem.getId())
+        .findFirst().orElseThrow();
+    assertThat(emailData.isWasEditable()).isFalse();
+
+    assertThatExceptionOfType(RegistrarException.class).isThrownBy(
+        () -> registrarManager.updateFormItemData(session, application.getId(), emailData))
+        .withMessageContaining("was not editable for the user at submission");
+  }
+
+  @Test
+  public void submitApplicationWithModifiedDisabledEmailItemTest() throws PerunException {
+    ApplicationForm form = registrarManager.getFormForVo(vo);
+    ApplicationFormItem item = new ApplicationFormItem();
+    item.setShortname("disabledMail");
+    item.setType(ApplicationFormItem.Type.VALIDATED_EMAIL);
+    item.setDisabled(ApplicationFormItem.Disabled.ALWAYS);
+    item.setPerunSourceAttribute(AttributesManager.NS_USER_ATTR_DEF + ":preferredMail");
+    ApplicationFormItem savedItem = registrarManager.addFormItem(session, form, item);
+
+    User user = perun.getUsersManagerBl().createUser(session, new User(0, "Email", "DisMod", "", "", ""));
+    Attribute mail = new Attribute(
+        perun.getAttributesManagerBl().getAttributeDefinition(session,
+            AttributesManager.NS_USER_ATTR_DEF + ":preferredMail"));
+    mail.setValue("user@example.com");
+    perun.getAttributesManagerBl().setAttribute(session, user, mail);
+
+    assertThatExceptionOfType(ItemVisibilityBrokenException.class).isThrownBy(
+        () -> registrarManager.submitApplication(getUserSession(user), Map.of(savedItem.getId(), "other@domain.cz"),
+            vo, null, INITIAL, null, null));
+  }
+
+  @Test
+  public void submitApplicationWithEmbeddedAppTypeTest() throws PerunException {
+    assertThatThrownBy(
+        () -> registrarManager.submitApplication(session, new HashMap<>(), vo, null, AppType.EMBEDDED, null, null))
+        .isInstanceOf(InternalErrorException.class)
+        .hasMessageContaining("Cannot manually submit an embedded application");
+  }
+
+  @Test
+  public void submitApplicationWithEmbeddedAppTypeAndInvitationTest() throws PerunException {
+    assertThatThrownBy(() -> registrarManager.submitApplication(
+        session, new HashMap<>(), vo, null, AppType.EMBEDDED, null, null, UUID.randomUUID()))
+        .isInstanceOf(InternalErrorException.class)
+        .hasMessageContaining("Cannot manually submit an embedded application");
+  }
+
+  @Test
   public void createApplicationFormItemValidHiddenId() throws Exception {
     var form = registrarManager.getFormForVo(vo);
 
@@ -985,7 +1479,8 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 
     User user = setUpUser("User", "Test");
     Application application = prepareApplicationToVo(user);
-    registrarManager.submitApplication(session, application, new ArrayList<>());
+    registrarManager.submitApplication(getUserSession(user), new HashMap<>(),
+        application.getVo(), application.getGroup(), application.getType(), null, null);
 
     List<Application> applications = registrarManager.getApplicationsForVo(session, vo, null, true);
     assertThat(items).hasSize(1);
@@ -1502,7 +1997,8 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     // create also vo app
     Application application = prepareApplicationToVo(user1);
     application.setVo(vo2);
-    registrarManager.submitApplication(session, application, new ArrayList<>());
+    registrarManager.submitApplication(getUserSession(user1), new HashMap<>(),
+        application.getVo(), application.getGroup(), application.getType(), null, null);
 
 
     // create group in another vo
@@ -1533,7 +2029,8 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     // create also vo app
     Application application = prepareApplicationToVo(user1);
     application.setVo(vo2);
-    registrarManager.submitApplication(session, application, new ArrayList<>());
+    registrarManager.submitApplication(getUserSession(user1), new HashMap<>(),
+        application.getVo(), application.getGroup(), application.getType(), null, null);
 
 
     // create group in another vo
@@ -2003,8 +2500,10 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     Application voApplication = prepareApplicationToVo(user);
     Application groupApplication = prepareApplicationToGroup(user, group);
     List<ApplicationFormItemData> appItemsData = new ArrayList<>();
-    voApplication = registrarManager.submitApplication(session, voApplication, appItemsData);
-    registrarManager.submitApplication(session, groupApplication, appItemsData);
+    voApplication = registrarManager.submitApplication(getUserSession(user), getItemDataMap(appItemsData),
+        voApplication.getVo(), voApplication.getGroup(), voApplication.getType(), null, null);
+    registrarManager.submitApplication(getUserSession(user), getItemDataMap(appItemsData),
+        groupApplication.getVo(), groupApplication.getGroup(), groupApplication.getType(), null, null);
     registrarManager.approveApplication(session, voApplication.getId());
 
     return voApplication;
@@ -2014,8 +2513,10 @@ System.out.println("APPS ["+result.size()+"]:" + result);
       throws PerunException {
     Application voApplication = prepareApplicationToVo(user);
     Application groupApplication = prepareApplicationToGroup(user, group);
-    voApplication = registrarManager.submitApplication(session, voApplication, data);
-    registrarManager.submitApplication(session, groupApplication, data);
+    voApplication = registrarManager.submitApplication(getUserSession(user), getItemDataMap(data),
+        voApplication.getVo(), voApplication.getGroup(), voApplication.getType(), null, null);
+    registrarManager.submitApplication(getUserSession(user), new HashMap<>(),
+        groupApplication.getVo(), groupApplication.getGroup(), groupApplication.getType(), null, null);
     registrarManager.approveApplication(session, voApplication.getId());
 
     return voApplication;
@@ -2163,8 +2664,10 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 
     Application application1 = prepareApplicationToVo(user1);
     Application application2 = prepareApplicationToVo(user2);
-    registrarManager.submitApplication(session, application1, new ArrayList<>());
-    registrarManager.submitApplication(session, application2, new ArrayList<>());
+    application1 = registrarManager.submitApplication(getUserSession(user1), new HashMap<>(),
+        application1.getVo(), application1.getGroup(), application1.getType(), null, null);
+    application2 = registrarManager.submitApplication(getUserSession(user2), new HashMap<>(),
+        application2.getVo(), application2.getGroup(), application2.getType(), null, null);
 
     registrarManager.approveApplications(session,
         new ArrayList<>(Arrays.asList(application1.getId(), application2.getId())));
@@ -2186,10 +2689,12 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     registrarManager.createApplicationFormInGroup(session, group);
 
     Application applicationToVo = prepareApplicationToVo(user);
-    applicationToVo = registrarManager.submitApplication(session, applicationToVo, new ArrayList<>());
+    applicationToVo = registrarManager.submitApplication(getUserSession(user), new HashMap<>(),
+        applicationToVo.getVo(), applicationToVo.getGroup(), applicationToVo.getType(), null, null);
 
     Application applicationToGroup = prepareApplicationToGroup(user, group);
-    applicationToGroup = registrarManager.submitApplication(session, applicationToGroup, new ArrayList<>());
+    applicationToGroup = registrarManager.submitApplication(getUserSession(user), new HashMap<>(),
+        applicationToGroup.getVo(), applicationToGroup.getGroup(), applicationToGroup.getType(), null, null);
 
     registrarManager.approveApplications(session,
         new ArrayList<>(Arrays.asList(applicationToGroup.getId(), applicationToVo.getId())));
@@ -2215,9 +2720,12 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     application2.setCreatedBy("perunTests2");
     Application application3 = prepareApplicationToVo(user3);
     application3.setCreatedBy("perunTests3");
-    registrarManager.submitApplication(session, application1, new ArrayList<>());
-    registrarManager.submitApplication(session, application2, new ArrayList<>());
-    registrarManager.submitApplication(session, application3, new ArrayList<>());
+    application1 = registrarManager.submitApplication(getUserSession(user1), new HashMap<>(),
+        application1.getVo(), application1.getGroup(), application1.getType(), null, null);
+    application2 = registrarManager.submitApplication(getUserSession(user2), new HashMap<>(),
+        application2.getVo(), application2.getGroup(), application2.getType(), null, null);
+    application3 = registrarManager.submitApplication(getUserSession(user3), new HashMap<>(),
+        application3.getVo(), application3.getGroup(), application3.getType(), null, null);
 
     registrarManager.rejectApplications(session, new ArrayList<>(List.of(application3.getId())), "");
 
@@ -2248,8 +2756,10 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 
     Application application1 = prepareApplicationToVo(user1);
     Application application2 = prepareApplicationToVo(user2);
-    registrarManager.submitApplication(session, application1, new ArrayList<>());
-    registrarManager.submitApplication(session, application2, new ArrayList<>());
+    application1 = registrarManager.submitApplication(getUserSession(user1), new HashMap<>(),
+        application1.getVo(), application1.getGroup(), application1.getType(), null, null);
+    application2 = registrarManager.submitApplication(getUserSession(user2), new HashMap<>(),
+        application2.getVo(), application2.getGroup(), application2.getType(), null, null);
 
     registrarManager.approveApplications(session, new ArrayList<>(List.of(application2.getId())));
     List<ApplicationOperationResult> approveResultList = registrarManager.approveApplications(session,
@@ -2281,9 +2791,12 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     Application application1 = prepareApplicationToVo(user1);
     Application application2 = prepareApplicationToVo(user2);
     Application application3 = prepareApplicationToVo(user3);
-    registrarManager.submitApplication(session, application1, new ArrayList<>());
-    registrarManager.submitApplication(session, application2, new ArrayList<>());
-    registrarManager.submitApplication(session, application3, new ArrayList<>());
+    application1 = registrarManager.submitApplication(getUserSession(user1), new HashMap<>(),
+        application1.getVo(), application1.getGroup(), application1.getType(), null, null);
+    application2 = registrarManager.submitApplication(getUserSession(user2), new HashMap<>(),
+        application2.getVo(), application2.getGroup(), application2.getType(), null, null);
+    application3 = registrarManager.submitApplication(getUserSession(user3), new HashMap<>(),
+        application3.getVo(), application3.getGroup(), application3.getType(), null, null);
 
     registrarManager.rejectApplications(session,
         Arrays.asList(application1.getId(), application2.getId(), application3.getId()), "");
@@ -2309,9 +2822,12 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     Application application1 = prepareApplicationToVo(user1);
     Application application2 = prepareApplicationToVo(user2);
     Application application3 = prepareApplicationToVo(user3);
-    registrarManager.submitApplication(session, application1, new ArrayList<>());
-    registrarManager.submitApplication(session, application2, new ArrayList<>());
-    registrarManager.submitApplication(session, application3, new ArrayList<>());
+    application1 = registrarManager.submitApplication(getUserSession(user1), new HashMap<>(),
+        application1.getVo(), application1.getGroup(), application1.getType(), null, null);
+    application2 = registrarManager.submitApplication(getUserSession(user2), new HashMap<>(),
+        application2.getVo(), application2.getGroup(), application2.getType(), null, null);
+    application3 = registrarManager.submitApplication(getUserSession(user3), new HashMap<>(),
+        application3.getVo(), application3.getGroup(), application3.getType(), null, null);
 
     registrarManager.approveApplication(session, application2.getId());
     registrarManager.rejectApplications(session, Arrays.asList(application1.getId(), application3.getId()), "");
@@ -2361,7 +2877,8 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     String embGroupsValue = String.format("Group A#%d|Group B#%d", group1.getId(), group2.getId());
     List<ApplicationFormItemData> appItemsData = new ArrayList<>();
     appItemsData.add(new ApplicationFormItemData(embeddedGroupsItem, "Embedded groups", embGroupsValue, "0"));
-    registrarManager.submitApplication(session, application, appItemsData);
+    application = registrarManager.submitApplication(getUserSession(user), getItemDataMap(appItemsData),
+        application.getVo(), application.getGroup(), application.getType(), null, null);
 
     List<Group> expectedEmbeddedGroups = List.of(group1, group2);
 
@@ -2403,7 +2920,8 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     String embGroupsValue = String.format("Group A#%d", group.getId());
     List<ApplicationFormItemData> appItemsData = new ArrayList<>();
     appItemsData.add(new ApplicationFormItemData(embeddedGroupsItem, "Embedded groups", embGroupsValue, "0"));
-    registrarManager.submitApplication(session, application, appItemsData);
+    application = registrarManager.submitApplication(getUserSession(user), getItemDataMap(appItemsData),
+        application.getVo(), application.getGroup(), application.getType(), null, null);
 
     registrarManager.approveApplication(session, application.getId());
 
@@ -2434,12 +2952,14 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     String embGroupsValue = String.format("Group A#%d", group1.getId());
     List<ApplicationFormItemData> appItemsData = new ArrayList<>();
     appItemsData.add(new ApplicationFormItemData(embeddedGroupsItem, "Embedded groups", embGroupsValue, "0"));
-    registrarManager.submitApplication(session, application, appItemsData);
+    application = registrarManager.submitApplication(getUserSession(user), getItemDataMap(appItemsData),
+        application.getVo(), application.getGroup(), application.getType(), null, null);
 
     // prepare group application and approve vo application
     Application groupApp = prepareApplicationToVo(user);
     groupApp.setGroup(group1);
-    registrarManager.submitApplication(session, groupApp, new ArrayList<>());
+    registrarManager.submitApplication(getUserSession(user), new HashMap<>(),
+        groupApp.getVo(), groupApp.getGroup(), groupApp.getType(), null, null);
     // normally, approval of VO generates and submits embedded groups applications
     registrarManager.approveApplication(session, application.getId());
 
@@ -2475,8 +2995,11 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     Application groupApplication = prepareApplicationToGroup(null, group1);
 
     List<ApplicationFormItemData> appItemsData = new ArrayList<>();
-    voApplication = registrarManager.submitApplication(session, voApplication, appItemsData);
-    registrarManager.submitApplication(session, groupApplication, appItemsData);
+    voApplication = registrarManager.submitApplication(getUserSession(user), getItemDataMap(appItemsData),
+        voApplication.getVo(), voApplication.getGroup(), voApplication.getType(), null, null);
+    registrarManager.submitApplication(getNoUserSession("ExtSource", ExtSourcesManager.EXTSOURCE_IDP),
+        getItemDataMap(appItemsData), groupApplication.getVo(), groupApplication.getGroup(),
+        groupApplication.getType(), null, null);
 
     registrarManager.approveApplication(session, voApplication.getId());
     //We have to call this method explicitly due to transactions
@@ -2549,11 +3072,13 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     user2 = perun.getUsersManagerBl().createUser(session, user2);
 
     Application application1 = prepareApplicationToVo(user1);
-    application1 = registrarManager.submitApplication(session, application1, new ArrayList<>());
+    application1 = registrarManager.submitApplication(getUserSession(user1), new HashMap<>(),
+        application1.getVo(), application1.getGroup(), application1.getType(), null, null);
 
     Application application2 = prepareApplicationToVo(user2);
     application2.setCreatedBy("perunTests2");
-    application2 = registrarManager.submitApplication(session, application2, new ArrayList<>());
+    application2 = registrarManager.submitApplication(getUserSession(user2), new HashMap<>(),
+        application2.getVo(), application2.getGroup(), application2.getType(), null, null);
 
     registrarManager.rejectApplications(session,
         new ArrayList<>(Arrays.asList(application1.getId(), application2.getId())), null);
@@ -2583,7 +3108,8 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     Application groupApplication = prepareApplicationToGroup(user, group1);
 
     List<ApplicationFormItemData> appItemsData = new ArrayList<>();
-    registrarManager.submitApplication(session, groupApplication, appItemsData);
+    registrarManager.submitApplication(getUserSession(user), getItemDataMap(appItemsData),
+        groupApplication.getVo(), groupApplication.getGroup(), groupApplication.getType(), null, null);
 
     membersManager.deleteMember(session, member);
 
@@ -2601,10 +3127,12 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     registrarManager.createApplicationFormInGroup(session, group);
 
     Application applicationToVo = prepareApplicationToVo(user);
-    applicationToVo = registrarManager.submitApplication(session, applicationToVo, new ArrayList<>());
+    applicationToVo = registrarManager.submitApplication(getUserSession(user), new HashMap<>(),
+        applicationToVo.getVo(), applicationToVo.getGroup(), applicationToVo.getType(), null, null);
 
     Application applicationToGroup = prepareApplicationToGroup(user, group);
-    applicationToGroup = registrarManager.submitApplication(session, applicationToGroup, new ArrayList<>());
+    applicationToGroup = registrarManager.submitApplication(getUserSession(user), new HashMap<>(),
+        applicationToGroup.getVo(), applicationToGroup.getGroup(), applicationToGroup.getType(), null, null);
 
     registrarManager.rejectApplications(session,
         new ArrayList<>(Arrays.asList(applicationToVo.getId(), applicationToGroup.getId())), null);
@@ -2623,11 +3151,13 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     user2 = perun.getUsersManagerBl().createUser(session, user2);
 
     Application application1 = prepareApplicationToVo(user1);
-    application1 = registrarManager.submitApplication(session, application1, new ArrayList<>());
+    application1 = registrarManager.submitApplication(getUserSession(user1), new HashMap<>(),
+        application1.getVo(), application1.getGroup(), application1.getType(), null, null);
 
     Application application2 = prepareApplicationToVo(user2);
     application2.setCreatedBy("perunTests2");
-    application2 = registrarManager.submitApplication(session, application2, new ArrayList<>());
+    application2 = registrarManager.submitApplication(getUserSession(user2), new HashMap<>(),
+        application2.getVo(), application2.getGroup(), application2.getType(), null, null);
 
     registrarManager.rejectApplications(session, new ArrayList<>(List.of(application2.getId())), null);
     List<ApplicationOperationResult> rejectResultList = registrarManager.rejectApplications(session,
@@ -2664,9 +3194,12 @@ System.out.println("APPS ["+result.size()+"]:" + result);
       Application application1 = prepareApplicationToVo(user1);
       Application application2 = prepareApplicationToVo(user2);
       Application application3 = prepareApplicationToVo(user3);
-      registrarManager.submitApplication(session, application1, new ArrayList<>());
-      registrarManager.submitApplication(session, application2, new ArrayList<>());
-      registrarManager.submitApplication(session, application3, new ArrayList<>());
+      application1 = registrarManager.submitApplication(getUserSession(user1), new HashMap<>(),
+          application1.getVo(), application1.getGroup(), application1.getType(), null, null);
+      application2 = registrarManager.submitApplication(getUserSession(user2), new HashMap<>(),
+          application2.getVo(), application2.getGroup(), application2.getType(), null, null);
+      application3 = registrarManager.submitApplication(getUserSession(user3), new HashMap<>(),
+          application3.getVo(), application3.getGroup(), application3.getType(), null, null);
 
       application1.setState(Application.AppState.REJECTED);
       application2.setState(Application.AppState.REJECTED);
@@ -2784,7 +3317,8 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     List<ApplicationFormItemData> appItemsData = new ArrayList<>();
     appItemsData.add(new ApplicationFormItemData(toChange, "wrongone", "value1", "0"));
     appItemsData.add(new ApplicationFormItemData(toNotChange, "correctone", "value2", "0"));
-    Application app = registrarManager.submitApplication(session, application, appItemsData);
+    Application app = registrarManager.submitApplication(getUserSession(user), getItemDataMap(appItemsData),
+        application.getVo(), application.getGroup(), application.getType(), null, null);
 
     assertTrue(registrarManager.getApplicationDataById(session, app.getId()).stream()
                    .map(ApplicationFormItemData::getShortname).anyMatch(n -> n.equals("wrongone")));
@@ -2818,7 +3352,8 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     registrarManager.createApplicationFormInGroup(session, group);
 
     Application applicationToVo = prepareApplicationToVo(user);
-    registrarManager.submitApplication(session, applicationToVo, new ArrayList<>());
+    registrarManager.submitApplication(getUserSession(user), new HashMap<>(),
+        applicationToVo.getVo(), applicationToVo.getGroup(), applicationToVo.getType(), null, null);
 
     Invitation invitation = new Invitation(0, vo.getId(), group.getId(), sender.getId(),
         "receiver name", "receiver@email.com", Locale.ENGLISH,
@@ -2826,8 +3361,9 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     invitation = invitationsManager.createInvitation(session, invitation);
 
     Application applicationToGroup = prepareApplicationToGroup(user, group);
-    applicationToGroup =
-        registrarManager.submitApplication(session, applicationToGroup, new ArrayList<>(), invitation.getToken());
+    applicationToGroup = registrarManager.submitApplication(getUserSession(user), new HashMap<>(),
+        applicationToGroup.getVo(), applicationToGroup.getGroup(), applicationToGroup.getType(), null, null,
+        invitation.getToken());
 
     assertEquals(applicationToGroup.getId(),
         (long) invitationsManager.getInvitationById(session, invitation.getId()).getApplicationId());
@@ -2847,7 +3383,8 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     registrarManager.createApplicationFormInGroup(session, group);
 
     Application applicationToVo = prepareApplicationToVo(user);
-    registrarManager.submitApplication(session, applicationToVo, new ArrayList<>());
+    applicationToVo = registrarManager.submitApplication(getUserSession(user), new HashMap<>(),
+        applicationToVo.getVo(), applicationToVo.getGroup(), applicationToVo.getType(), null, null);
     registrarManager.approveApplication(session, applicationToVo.getId());
 
     Invitation invitation = new Invitation(0, vo.getId(), group.getId(), sender.getId(),
@@ -2856,8 +3393,9 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     invitation = invitationsManager.createInvitation(session, invitation);
 
     Application applicationToGroup = prepareApplicationToGroup(user, group);
-    applicationToGroup =
-        registrarManager.submitApplication(session, applicationToGroup, new ArrayList<>(), invitation.getToken());
+    applicationToGroup = registrarManager.submitApplication(getUserSession(user), new HashMap<>(),
+        applicationToGroup.getVo(), applicationToGroup.getGroup(), applicationToGroup.getType(), null, null,
+        invitation.getToken());
 
     List<Application> groupApps = registrarManager.getApplicationsForGroup(session, group, List.of("APPROVED"));
     assertEquals(1, groupApps.size());
@@ -2888,7 +3426,8 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     registrarManager.createApplicationFormInGroup(session, group);
 
     Application applicationToVo = prepareApplicationToVo(user);
-    registrarManager.submitApplication(session, applicationToVo, new ArrayList<>());
+    applicationToVo = registrarManager.submitApplication(getUserSession(user), new HashMap<>(),
+        applicationToVo.getVo(), applicationToVo.getGroup(), applicationToVo.getType(), null, null);
 
     Invitation invitation = new Invitation(0, vo.getId(), group.getId(), sender.getId(),
         "receiver name", "receiver@email.com", Locale.ENGLISH,
@@ -2897,7 +3436,9 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 
     Application applicationToGroup = prepareApplicationToGroup(null, group);
     applicationToGroup =
-        registrarManager.submitApplication(session, applicationToGroup, new ArrayList<>(), invitation.getToken());
+        registrarManager.submitApplication(getNoUserSession("ExtSource", ExtSourcesManager.EXTSOURCE_IDP),
+            new HashMap<>(), applicationToGroup.getVo(), applicationToGroup.getGroup(),
+            applicationToGroup.getType(), null, null, invitation.getToken());
 
     List<Application> groupApps = registrarManager.getApplicationsForGroup(session, group, List.of("APPROVED"));
     assertEquals(0, groupApps.size());
@@ -2936,7 +3477,8 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     registrarManager.addFormItem(session, form, mailItem);
 
     Application applicationToVo = prepareApplicationToVo(user);
-    registrarManager.submitApplication(session, applicationToVo, new ArrayList<>());
+    applicationToVo = registrarManager.submitApplication(getUserSession(user), new HashMap<>(),
+        applicationToVo.getVo(), applicationToVo.getGroup(), applicationToVo.getType(), null, null);
     registrarManager.approveApplication(session, applicationToVo.getId());
 
     String receiverMail = "receiver@email.com";
@@ -2949,7 +3491,9 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 
     List<ApplicationFormItemData> data = new ArrayList<>();
     data.add(new ApplicationFormItemData(mailItem, mailItem.getShortname(), receiverMail, "0"));
-    applicationToGroup = registrarManager.submitApplication(session, applicationToGroup, data, invitation.getToken());
+    applicationToGroup = registrarManager.submitApplication(getUserSession(user), getItemDataMap(data),
+        applicationToGroup.getVo(), applicationToGroup.getGroup(), applicationToGroup.getType(), null, null,
+        invitation.getToken());
 
     List<Application> groupApps = registrarManager.getApplicationsForGroup(session, group, List.of("APPROVED"));
     List<ApplicationFormItemData> processedData =

@@ -27,6 +27,7 @@ import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import cz.metacentrum.perun.registrar.model.Application;
 import cz.metacentrum.perun.registrar.model.ApplicationForm;
 import cz.metacentrum.perun.registrar.model.ApplicationFormItem;
+import cz.metacentrum.perun.registrar.model.ApplicationFormItemData;
 import cz.metacentrum.perun.registrar.model.ApplicationFormItemWithPrefilledValue;
 import cz.metacentrum.perun.registrar.model.ApplicationMail;
 import jakarta.servlet.http.HttpServletRequest;
@@ -78,6 +79,7 @@ public class JsonDeserializer extends Deserializer {
     MIXIN_MAP.put(Application.class, PerunBeanMixIn.class);
     MIXIN_MAP.put(ApplicationForm.class, PerunBeanMixIn.class);
     MIXIN_MAP.put(ApplicationFormItem.class, PerunBeanMixIn.class);
+    MIXIN_MAP.put(ApplicationFormItemData.class, ApplicationFormItemDataMixIn.class);
     MIXIN_MAP.put(ApplicationFormItemWithPrefilledValue.class, PerunBeanMixIn.class);
     MIXIN_MAP.put(ApplicationMail.class, PerunBeanMixIn.class);
 
@@ -413,6 +415,10 @@ public class JsonDeserializer extends Deserializer {
 
   @JsonIgnoreProperties({"beanName", "uuid"})
   private interface PerunBeanMixIn {
+  }
+
+  @JsonIgnoreProperties({"beanName", "wasEditable"})
+  private interface ApplicationFormItemDataMixIn {
   }
 
   @JsonIgnoreProperties({"userExtSources", "commonName", "displayName", "specificUser", "majorSpecificType", "beanName",

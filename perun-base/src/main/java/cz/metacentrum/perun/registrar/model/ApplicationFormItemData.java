@@ -13,6 +13,7 @@ public class ApplicationFormItemData {
   private String value;
   private String assuranceLevel;
   private String prefilledValue = "";
+  private boolean wasEditable = true;
 
   public ApplicationFormItemData() {
   }
@@ -86,6 +87,14 @@ public class ApplicationFormItemData {
     this.prefilledValue = prefilledValue;
   }
 
+  public boolean isWasEditable() {
+    return wasEditable;
+  }
+
+  public void setWasEditable(boolean wasEditable) {
+    this.wasEditable = wasEditable;
+  }
+
   public String getShortname() {
     return shortname;
   }
@@ -106,7 +115,8 @@ public class ApplicationFormItemData {
   public String toString() {
     return this.getClass().getSimpleName() + ":[" + "formItem='" + getFormItem().toString() + '\'' + ", shortname='" +
            getShortname() + '\'' + ", value='" + getValue() + '\'' + ", prefilledValue='" + getPrefilledValue() + '\'' +
-           ", assuranceLevel='" + getAssuranceLevel() + '\'' + "]";
+               ", assuranceLevel='" + getAssuranceLevel() +
+           '\'' + ", wasEditable='" + isWasEditable() + '\'' + "]";
   }
 
 }

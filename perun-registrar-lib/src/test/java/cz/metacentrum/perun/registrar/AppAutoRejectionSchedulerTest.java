@@ -423,7 +423,8 @@ public class AppAutoRejectionSchedulerTest extends AbstractRegistrarIntegrationT
 
     application.setUser(user);
 
-    return registrarManager.submitApplication(session, application, data);
+    return registrarManager.submitApplication(user != null ? getUserSession(user) : session, getItemDataMap(data),
+        application.getVo(), application.getGroup(), application.getType(), null, null);
   }
 
   private void setUpExtSource() throws Exception {
