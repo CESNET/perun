@@ -1,5 +1,18 @@
 Upgrade notes
 
+## [58.0.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v57.1.0...v58.0.0) (2026-11-19)
+
+
+### ⚠ BREAKING CHANGES
+
+* **registrar:** signature of `submitApplication` changed, `createApplication` removed
+
+(cherry picked from commit 23304e6e39e8e7572deb1f351c4e643983b6d8de)
+
+### Bug Fixes
+
+* **registrar:** server-side validation ([a5c3f6a](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/a5c3f6af963ca2453b8fa599467f85f08a16d55f))
+
 ## [57.1.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v57.0.0...v57.1.0) (2026-11-11)
 
 
