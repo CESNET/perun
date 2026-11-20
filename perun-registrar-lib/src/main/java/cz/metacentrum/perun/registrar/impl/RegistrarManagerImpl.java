@@ -1952,8 +1952,11 @@ public class RegistrarManagerImpl implements RegistrarManager {
     if (!hidden && !disabled) {
       return;
     }
-    boolean error = itemData.getFormItem().getType().equals(VALIDATED_EMAIL) ?
-                        !checkEmailMatchesPrefilledValue(itemData) : !Objects.equals(
+    boolean shouldPerformListCheck = "mail".equals(itemData.getFormItem().getFederationAttribute()) ||
+                                         "o".equals(itemData.getFormItem().getFederationAttribute()) ||
+                                         itemData.getFormItem().getType().equals(VALIDATED_EMAIL);
+    boolean error = shouldPerformListCheck ?
+                        !checkMatchingPrefilledListValue(itemData) : !Objects.equals(
                 Objects.requireNonNullElse(itemData.getValue(), ""),
                 Objects.requireNonNullElse(item.getPrefilledValue(), "")
         );
@@ -1964,7 +1967,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
     }
   }
 
-  private boolean checkEmailMatchesPrefilledValue(ApplicationFormItemData itemData) {
+  private boolean checkMatchingPrefilledListValue(ApplicationFormItemData itemData) {
     if (isBlank(itemData.getValue()) && isBlank(itemData.getPrefilledValue())) {
       return true;
     }
@@ -1973,8 +1976,10 @@ public class RegistrarManagerImpl implements RegistrarManager {
     }
     List<String> prefilledValues = Arrays.stream(itemData.getPrefilledValue().split(";"))
                                        .map(String::toLowerCase).toList();
-    String actualValue = itemData.getValue().toLowerCase();
-    return prefilledValues.contains(actualValue);
+    String actualValue = Objects.requireNonNullElse(itemData.getValue(), "").toLowerCase();
+    // either the whole prefilled value was submitted as-is (widgets that do not truncate multi-value prefills),
+    // or one of its ";"-separated entries (widgets that auto-select the first value)
+    return actualValue.equals(itemData.getPrefilledValue().toLowerCase()) || prefilledValues.contains(actualValue);
   }
 
   private List<ApplicationFormItemData> checkSubmissibility(PerunSession session, Map<Integer, String> data,
