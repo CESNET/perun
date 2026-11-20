@@ -1,5 +1,12 @@
 Upgrade notes
 
+## [58.0.2](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v58.0.1...v58.0.2) (2026-11-20)
+
+
+### Bug Fixes
+
+* **registrar:** fix text_field list check ([d6f12d3](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/d6f12d3a559715236e42f71c3b17dc7814c2fd93))
+
 ## [58.0.1](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v58.0.0...v58.0.1) (2026-11-20)
 
 
