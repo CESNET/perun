@@ -1,5 +1,12 @@
 Upgrade notes
 
+## [58.0.1](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v58.0.0...v58.0.1) (2026-11-20)
+
+
+### Bug Fixes
+
+* **registrar:** do not create application with unreserved login items ever ([1fbb3bb](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/1fbb3bb1c81460294e12a8406e97a47a4921c8b9))
+
 ## [58.0.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v57.1.0...v58.0.0) (2026-11-19)
 
 
