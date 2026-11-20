@@ -2132,24 +2132,25 @@ public class RegistrarManagerImpl implements RegistrarManager {
           // values to store
           String login = loginItem.getValue();
           String pass = null; // filled later
-          // Get login namespace
-          String dstAttr = loginItem.getFormItem().getPerunDestinationAttribute();
-          AttributeDefinition loginAttribute = attrManager.getAttributeDefinition(session, dstAttr);
-          String loginNamespace = loginAttribute.getFriendlyNameParameter();
-
-          boolean loginAvailable = false;
+          String loginNamespace = "";
           try {
-            loginAvailable = usersManager.isLoginAvailable(session, loginNamespace, login);
-          } catch (InvalidLoginException ex) {
-            LOG.error("[REGISTRAR] Unable to store login: {} in namespace: {} due to {}", login, loginNamespace, ex);
-            throw new ApplicationNotCreatedException(
-                "Application was not created. Reason: Login: " + login + " in namespace: " + loginNamespace +
-                " is not allowed. Please choose different login.", login, loginNamespace);
-          }
+            // Get login namespace
+            String dstAttr = loginItem.getFormItem().getPerunDestinationAttribute();
+            AttributeDefinition loginAttribute = attrManager.getAttributeDefinition(session, dstAttr);
+            loginNamespace = loginAttribute.getFriendlyNameParameter();
 
-          // try to book new login in namespace if the application hasn't been approved yet
-          if (loginAvailable) {
+            boolean loginAvailable = false;
             try {
+              loginAvailable = usersManager.isLoginAvailable(session, loginNamespace, login);
+            } catch (InvalidLoginException ex) {
+              LOG.error("[REGISTRAR] Unable to store login: {} in namespace: {} due to {}", login, loginNamespace, ex);
+              throw new ApplicationNotCreatedException(
+                  "Application was not created. Reason: Login: " + login + " in namespace: " + loginNamespace +
+                      " is not allowed. Please choose different login.", login, loginNamespace);
+            }
+
+            // try to book new login in namespace if the application hasn't been approved yet
+            if (loginAvailable) {
               // Reserve login
               String actor = session.getPerunPrincipal().getActor();
               String extSource = session.getPerunPrincipal().getExtSourceName();
@@ -2193,20 +2194,22 @@ public class RegistrarManagerImpl implements RegistrarManager {
                       login, loginNamespace);
                 }
               }
-            } catch (ApplicationNotCreatedException ex) {
-              throw ex; // re-throw
-            } catch (Exception ex) {
-              // unable to book login
-              LOG.error("[REGISTRAR] Unable to reserve login: {} in namespace: {}. Exception: ", login, loginNamespace,
-                  ex);
-              exceptions.add(ex);
+            } else {
+              // login is not available
+              LOG.error("[REGISTRAR] Login: {} in namespace: {} is already occupied but it shouldn't (race condition).",
+                  login, loginNamespace);
+              throw new ApplicationNotCreatedException("Login: " + login + " in namespace: " + loginNamespace +
+                                                           " is already occupied but it shouldn't.",
+                  login, loginNamespace);
             }
-          } else {
-            // login is not available
-            LOG.error("[REGISTRAR] Login: {} in namespace: {} is already occupied but it shouldn't (race condition).",
+          } catch (Exception ex) {
+            // unable to book login
+            LOG.error("[REGISTRAR] Unable to reserve login: {} in namespace: {}. Exception: ", login, loginNamespace,
+                ex);
+            // never create an application once login reservation failed, as this would keep the login value in
+            // the form item data and upon approval still try to assign the login
+            throw new ApplicationNotCreatedException("Couldn't reserve login due to: " + ex.getMessage(),
                 login, loginNamespace);
-            exceptions.add(new InternalErrorException(
-                "Login: " + login + " in namespace: " + loginNamespace + " is already occupied but it shouldn't."));
           }
         }
       }
